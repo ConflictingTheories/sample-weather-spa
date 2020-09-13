@@ -1,6 +1,6 @@
 /*                                            *\
 ** ------------------------------------------ **
-**           Sample - Weather SPA    	      **
+**           Sample - Weather SPA    	        **
 ** ------------------------------------------ **
 **  Copyright (c) 2020 - Kyle Derby MacInnis  **
 **                                            **
@@ -11,9 +11,21 @@
 ** ------------------------------------------ **
 \*                                            */
 
-/// <reference types="react-scripts" />
+const CracoLessPlugin = require('craco-less');
 
-declare module "*.module.less" {
-  const classes: { [key: string]: string };
-  export default classes;
-}
+module.exports = {
+  // LESS Support
+  plugins: [
+    {
+      plugin: CracoLessPlugin,
+      options: {
+        lessLoaderOptions: {
+          lessOptions: {
+            modifyVars: { '@background': '#282c34' },
+            javascriptEnabled: true,
+          },
+        },
+      },
+    },
+  ],
+};

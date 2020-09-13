@@ -13,7 +13,7 @@
 
 import React from 'react';
 
-import { Route, Redirect, RouteProps } from 'react-router-dom';
+import { Route, Redirect } from 'react-router-dom';
 
 // Authenticator
 import Authenticator from '../../helpers/authHelper'

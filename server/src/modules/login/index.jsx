@@ -41,7 +41,7 @@ import "rsuite/dist/styles/rsuite-dark.css";
 
 // ASSETS & APP STYLES
 import Logo from "../../assets/logo.svg";
-import "../../styles/App.css";
+import "../../styles/App.less";
 
 import { login, check } from "../../services/auth";
 
@@ -124,6 +124,7 @@ class Login extends React.Component {
                     <Sidebar style={{ width: "320px" }}>
                       <img
                         src={Logo}
+                        alt={Logo}
                         height="320"
                         style={{
                           background: "linear-gradient(45deg,indigo,black)",
