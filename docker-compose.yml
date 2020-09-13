@@ -1,0 +1,60 @@
+version: "3.5"
+services:
+  # Load Balancer (NginX)
+  weather_lb:
+    container_name: "weather-lb"
+    image: weather-lb:latest
+    restart: always
+    volumes:
+      - "./load-balancer/certs:/etc/letsencrypt"
+    depends_on:
+      - "weather_portal"
+    build:
+      context: ./load-balancer/
+    ports:
+      - "80:80"
+      - "443:443"
+  # Database (MySQL)
+  weather_db:
+    container_name: "weather-db"
+    image: weather-db:latest
+    build:
+      context: ./database/
+    volumes:
+      - "./database/data:/var/lib/mysql"
+    command: --default-authentication-plugin=mysql_native_password
+    restart: always
+    ports:
+      - "3306:3306"
+    environment:
+      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD}
+      MYSQL_USER: ${DB_USER}
+      MYSQL_PASSWORD: ${DB_PASS}
+      MYSQL_DATABASE: ${DB_NAME}
+  # Main API / Portal for weather (React / Express)
+  weather_portal:
+    container_name: "weather-portal"
+    image: weather:latest
+    restart: always
+    build:
+      context: ./server/
+    depends_on:
+      - "weather_db"
+    ports:
+      - "${APP_PORT}:${APP_PORT}"
+    environment:
+      APP_PORT: ${APP_PORT}
+      API_HOST: ${API_HOST}
+      API_VERSION: ${API_VERSION}
+      API_ROUTE_PATH: ${API_ROUTE_PATH}
+      DB_TYPE: ${DB_TYPE}
+      DB_HOST: ${DB_HOST}
+      DB_USER: ${DB_USER}
+      DB_PASS: ${DB_PASS}
+      DB_NAME: ${DB_NAME}
+      PUBLIC_URL: ${PUBLIC_URL}
+      ENABLE_AUTH: ${ENABLE_AUTH}
+# Network to Communicate
+networks:
+  default:
+    name: weather-network
