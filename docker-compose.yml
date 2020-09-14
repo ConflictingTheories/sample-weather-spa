@@ -42,6 +42,9 @@ services:
       - "weather_db"
     ports:
       - "${APP_PORT}:${APP_PORT}"
+    volumes:
+      - "./server/build:/opt/weather/build"
+      - "./server/node_modules:/opt/weather/node_modules"
     environment:
       APP_PORT: ${APP_PORT}
       API_HOST: ${API_HOST}

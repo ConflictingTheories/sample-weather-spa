@@ -45,22 +45,27 @@ import { getForecastByLatLng, getForecast } from "../../services/weather";
 // ASSETS & APP STYLES
 import "../../styles/App.less";
 
+// List of Countries
+import countries from "../../assets/countries.json";
+
 const { Paragraph } = Placeholder;
 
 class Dashboard extends React.Component {
   constructor(props) {
     super(props);
-
+    // methods
+    this.fetchByCity = this.fetchByCity.bind(this);
+    this.updateCity = this.updateCity.bind(this);
+    this.updateCountry = this.updateCountry.bind(this);
+    this.renderDashboardTabs = this.renderDashboardTabs.bind(this);
+    // Store
     this.store = props.store;
-
-    this.requestLocation = this.requestLocation.bind(this);
-    this.requestLocation = this.isLocationPermissionGranted.bind(this);
-
+    // State
     this.state = {
       position: this.store.position || null,
       location: this.store.location || {
         city: "",
-        country: ""
+        country: "",
       },
     };
   }
@@ -75,7 +80,9 @@ class Dashboard extends React.Component {
       navigator.geolocation.getCurrentPosition(
         function (position) {
           console.log(position);
-          this.store.position = position;
+          this.setState(position, () => {
+            this.store.position = position;
+          });
         },
         function (error) {
           console.error("Error Code = " + error.code + " - " + error.message);
@@ -84,36 +91,63 @@ class Dashboard extends React.Component {
     }
   }
 
-  // Fetch by Lat / Long
-  async fetchByLatLng() {
-    await this.requestLocation();
-    if (this.store.position) {
-      const result = await getForecastByLatLng(
-        this.store.position.coords.latitude,
-        this.store.position.coords.longitude
-      );
-      this.store.forecast = result;
+  // Fetch by City Lookup
+  async fetchByCity() {
+    const { location } = this.state;
+    if (location) {
+      const result = await getForecast(location.city, location.country);
+      this.setState({ forecase: result }, () => {
+        this.store.forecast = result;
+      });
     }
   }
 
-  // Fetch by City Lookup
-  async fetchByCity() {
-    if (this.store.location) {
-      const result = await getForecast(
-        this.store.location.city,
-        this.store.location.country
-      );
-      this.store.forecast = result;
-    }
+  // Update Handler
+  updateCity(x) {
+    const { location } = this.state;
+    location.city = x;
+    this.setState({ location }, () => {
+      this.store.location = location;
+    });
+  }
+
+  // Handler
+  updateCountry(x) {
+    const { location } = this.state;
+    location.country = x;
+    this.setState({ location }, () => {
+      this.store.location = location;
+    });
   }
 
   // Search Location if available
   async componentDidMount() {
     // Fetch Location on Load (if Permission Given)
-    await this.fetchByLatLng();
+    await this.requestLocation();
+    const { position } = this.state;
+    if (position && position.coords) {
+      const result = await getForecastByLatLng(
+        position.coords.latitude,
+        position.coords.longitude
+      );
+      this.setState({ forecast: result }, () => {
+        this.store.forecast = result;
+      });
+    }
+
+    // Provide "Notification"
+    setTimeout(
+      () =>
+        Notification.open({
+          title: "Storm Warning 🐙👾 - WOOOH!!",
+          description: <Paragraph width={320} rows={3} />,
+        }),
+      ~~(Math.random() * 10000)
+    );
   }
 
   renderDashboardTabs() {
+    const { location } = this.state;
     return (
       <React.Fragment>
         <Callout
@@ -123,22 +157,28 @@ class Dashboard extends React.Component {
           <Paragraph width={320} rows={3} />
         </Callout>
         <div>
-          {this.store.position}
-          {this.store.forecast}
+          <label>City</label>
+          <input value={location.city || ""} onChange={this.updateCity} />
+
+          <label>Country</label>
+          <select onChange={this.updateCountry}>
+            {countries.map((x) =>
+              x.code == location.country ? (
+                <option selected value={x.code}>
+                  {x.value}
+                </option>
+              ) : (
+                <option value={x.code}>{x.value}</option>
+              )
+            )}
+          </select>
+
+          <Button onClick={() => this.fetchByCity()}>Lookup</Button>
+
+          <h1>Lookup for: {this.state.position} </h1>
+          <p>{this.state.forecast}</p>
         </div>
       </React.Fragment>
-    );
-  }
-
-  async componentDidMount() {
-    // Provide "Notification"
-    setTimeout(
-      () =>
-        Notification.open({
-          title: "Storm Warning 🐙👾 - WOOOH!!",
-          description: <Paragraph width={320} rows={3} />,
-        }),
-      ~~(Math.random() * 10000)
     );
   }
 

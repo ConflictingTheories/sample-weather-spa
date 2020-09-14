@@ -66,7 +66,7 @@ app.use("/api/:ver", (req, res) => {
 });
 
 // === STATIC Files
-app.use("/static", express.static(__dirname + "/../build/static"));
+app.use("/static", express.static(__dirname + "/../build"));
 
 // === WEB ROUTE
 app.use("*", index);
