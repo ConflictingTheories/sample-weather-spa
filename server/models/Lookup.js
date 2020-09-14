@@ -11,20 +11,22 @@
 ** ------------------------------------------ **
 \*                                            */
 
+const { Model, DataTypes } = require("sequelize");
+
+// Pass in DB Handler Instance
 module.exports = (DB) => {
-  const { saltHashPassword } = require("../../../lib/Crypto");
-  const User = require("../../../models/User")(DB);
-  // Seed Users Table
-  return {
-    seed: async () => {
-      await DB.sync();
-      const saltedPass = saltHashPassword("password");
-      const jane = await User.create({
-        username: "janedoe",
-        password: saltedPass.passwordHash,
-        salt: saltedPass.salt,
-      });
-      console.log(jane.toJSON());
+  class Lookup extends Model {}
+  User.init(
+    {
+      id: { type: DataTypes.INTEGER, autoIncrement: true, primaryKey: true },
+      city: { type: DataTypes.STRING, allowNull: true },
+      country: { type: DataTypes.STRING, allowNull: true },
+      lat: { type: DataTypes.FLOAT, allowNull: true },
+      lng: { type: DataTypes.FLOAT, allowNull: true },
+      createdAt: DataTypes.DATE,
+      updatedAt: DataTypes.DATE,
     },
-  };
+    { sequelize: DB, modelName: "lookup" }
+  );
+  return User;
 };

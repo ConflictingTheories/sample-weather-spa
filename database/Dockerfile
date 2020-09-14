@@ -12,10 +12,15 @@
 # \*                                            */
 
 FROM mysql:8.0
+
 # Env Variables
 ENV MYSQL_ROOT_PASSWORD=${MYSQL_ROOT_PASSWORD}
 ENV MYSQL_USER=${DB_USER}
 ENV MYSQL_PASSWORD=${DB_PASS}
 ENV MYSQL_DATABASE=${DB_NAME}
+
+# Authorize DB Auth Access
+ADD ./scripts /docker-entrypoint-initdb.d
+
 # Expose Ports
 EXPOSE 3306

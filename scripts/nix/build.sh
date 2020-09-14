@@ -1,3 +1,4 @@
+#!/bin/bash
 # /*                                            *\
 # ** ------------------------------------------ **
 # **           Sample - Weather SPA    	      **
@@ -12,16 +13,11 @@
 # \*                                            */
 
 # Read .ENV Variables
-$env:BUILD_PATH="$(Get-Location)"
-Set-Location $env:BUILD_PATH;
+declare -x BUILD_PATH=$(pwd)\..
 
-foreach( $line in $(Get-Content "$env:BUILD_PATH\.env")){
-    $envData = $line.Split('=')
-    Write-Output "$($envData.get(0))=$($envData.get(1))"
-    [Environment]::SetEnvironmentVariable($envData.get(0), $envData.get(1), "User")   
-}
+cd $BUILD_PATH
 
-# Deploy
-docker-compose up -d
+source $BUILD_PATH/.env
 
-Set-Location $env:BUILD_PATH;
+# Compile
+docker-compose build 

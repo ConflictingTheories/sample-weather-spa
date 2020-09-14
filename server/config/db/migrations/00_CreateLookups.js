@@ -18,24 +18,13 @@ module.exports = (DB) => {
   return {
     up: async () => {
       await _DB.createTable("lookups", {
-        id: {
-          type: DataTypes.INTEGER,
-          allowNull: false,
-          autoIncrement: true,
-          primaryKey: true,
-        },
-        username: {
-          type: DataTypes.STRING,
-          allowNull: false,
-        },
-        password: {
-          type: DataTypes.STRING,
-          allowNull: false,
-        },
-        salt: {
-          type: DataTypes.STRING,
-          allowNull: false,
-        },
+        id: { type: DataTypes.INTEGER, autoIncrement: true, primaryKey: true },
+        city: { type: DataTypes.STRING, allowNull: true },
+        country: { type: DataTypes.STRING, allowNull: true },
+        lat: { type: DataTypes.FLOAT, allowNull: true },
+        lng: { type: DataTypes.FLOAT, allowNull: true },
+        createdAt: DataTypes.DATE,
+        updatedAt: DataTypes.DATE,
       });
     },
     down: async () => {

@@ -52,6 +52,7 @@ services:
       DB_USER: ${DB_USER}
       DB_PASS: ${DB_PASS}
       DB_NAME: ${DB_NAME}
+      WEATHER_API_KEY: ${WEATHER_API_KEY}
       PUBLIC_URL: ${PUBLIC_URL}
       ENABLE_AUTH: ${ENABLE_AUTH}
 # Network to Communicate

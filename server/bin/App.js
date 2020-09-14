@@ -69,7 +69,7 @@ app.use("/api/:ver", (req, res) => {
 app.use("/static", express.static(__dirname + "/../build/static"));
 
 // === WEB ROUTE
-app.use("/", index);
+app.use("*", index);
 
 // LISTEN ON PORT
 server.listen(process.env.APP_PORT, () => {

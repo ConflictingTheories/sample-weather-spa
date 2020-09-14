@@ -22,6 +22,6 @@ foreach( $line in $(Get-Content "$env:BUILD_PATH\.env")){
 }
 
 # Deploy
-docker-compose up -d
+docker-compose build
 
 Set-Location $env:BUILD_PATH;

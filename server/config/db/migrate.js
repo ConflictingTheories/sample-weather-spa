@@ -28,7 +28,7 @@ Migration.init(
       primaryKey: true,
     },
     migration: DataTypes.STRING,
-    updateAat: DataTypes.DATE,
+    updatedAt: DataTypes.DATE,
     createdAt: DataTypes.DATE,
   },
   { sequelize: DB, modelName: "migration" }
@@ -46,7 +46,7 @@ module.exports = (async () => {
       primaryKey: true,
     },
     migration: DataTypes.STRING,
-    updateAat: DataTypes.DATE,
+    updatedAt: DataTypes.DATE,
     createdAt: DataTypes.DATE,
   });
 
@@ -57,14 +57,18 @@ module.exports = (async () => {
       files
         .sort((a, b) => b - a)
         .map(async (file) => {
-          // Run up()
-          await require(path.join(__dirname, "migrations", file))(DB).up();
-          // Store Migration in DB
-          await Migration.create({
-            migration: file,
-            updateAat: new Date(),
-            createdAt: new Date(),
-          });
+          if ((await Migration.findOne({ migration: file }))) {
+            // Skip Existing
+          } else {
+            // Run up()
+            await require(path.join(__dirname, "migrations", file))(DB).up();
+            // Store Migration in DB
+            await Migration.create({
+              migration: file,
+              updatedAt: new Date(),
+              createdAt: new Date(),
+            });
+          }
         });
   });
 })();

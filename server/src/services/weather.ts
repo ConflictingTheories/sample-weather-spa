@@ -11,22 +11,29 @@
 ** ------------------------------------------ **
 \*                                            */
 
-// Third-party Libraries
-const express = require("express");
-const path = require("path");
-const router = express.Router({ mergeParams: true });
+import ApiHelper from "../helpers/apiHelper";
 
-module.exports = function (_) {
-
-  router.use("*", express.static(path.join(__dirname,"../build")));
-
-  router.use("/", function (_, res) {
-    res.sendFile(path.join(__dirname, "../build/", "index.html"));
+// GET /weather/:country/:city
+export async function getForecast(country: string, city: string) {
+  return ApiHelper.get(`/weather/${country}/${city}`).then((forecast: any) => {
+    if (forecast) {
+      console.log(forecast);
+    }
+    return {
+      forecast,
+    };
   });
+}
 
-  router.use("/index", function (_, res) {
-    res.sendFile(path.join(__dirname, "../build/", "index.html"));
+// GET /weather/geo/:lat/:lng
+export async function getForecastByLatLng(lat: number, lng: number) {
+  return ApiHelper.get(`/weather/geo/${lat}/${lng}`).then((forecast: any) => {
+    if (forecast) {
+      console.log(forecast);
+    }
+    return {
+      forecast,
+    };
   });
+}
 
-  return router;
-};
