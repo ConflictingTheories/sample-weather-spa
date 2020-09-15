@@ -17,7 +17,7 @@ module.exports = (DB) => {
   const _DB = DB.getQueryInterface();
   return {
     up: async () => {
-      await _DB.createTable("lookups", {
+      await _DB.createTable("users", {
         id: {
           type: DataTypes.INTEGER,
           allowNull: false,
@@ -39,7 +39,7 @@ module.exports = (DB) => {
       });
     },
     down: async () => {
-      await _DB.deleteTable("lookups");
+      await _DB.deleteTable("users");
     },
   };
 };

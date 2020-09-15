@@ -181,21 +181,21 @@ class Dashboard extends React.Component {
                   value={location.city || ""}
                   onChange={this.updateCity}
                 />
-                  <select
-                    placeholder={"Country"}
-                    className={"bp3-fill bp3-large"}
-                    onChange={this.updateCountry}
-                  >
-                    {countries.map((x) =>
-                      x.code == location.country ? (
-                        <option selected value={x.code}>
-                          {x.value}
-                        </option>
-                      ) : (
-                        <option value={x.code}>{x.value}</option>
-                      )
-                    )}
-                  </select>
+                <select
+                  placeholder={"Country"}
+                  className={"bp3-fill bp3-large"}
+                  onChange={this.updateCountry}
+                >
+                  {countries.map((x) =>
+                    x.code == location.country ? (
+                      <option selected value={x.code}>
+                        {x.value}
+                      </option>
+                    ) : (
+                      <option value={x.code}>{x.value}</option>
+                    )
+                  )}
+                </select>
                 <Button onClick={() => this.fetchByCity()}>Lookup</Button>
               </ControlGroup>
             </React.Fragment>
@@ -212,7 +212,25 @@ class Dashboard extends React.Component {
                 // Active
                 <li className={"active"}>
                   {this.renderIcon(type[0].code)}
-                  <h4>{forecast.weather[0].description || type[0].desc}</h4>
+                  <div className={"details"}>
+                    <Callout intent={Intent.SUCCESS}>
+                      <p>
+                        Temperature: {kelvinToCelsius(forecast.main.temp)} C
+                      </p>
+                      <p>
+                        Min:{" "}
+                        {kelvinToCelsius(forecast.main.temp_min).toFixed(2)} C
+                      </p>
+                      <p>
+                        Max:{" "}
+                        {kelvinToCelsius(forecast.main.temp_max).toFixed(2)} C
+                      </p>
+                      <p>
+                        Weather:{" "}
+                        {forecast.weather[0].description || type[0].desc}
+                      </p>
+                    </Callout>
+                  </div>
                 </li>
               ) : (
                 // Not Active

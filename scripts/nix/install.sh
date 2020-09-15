@@ -13,7 +13,7 @@
 # \*                                            */
 
 # Read .ENV Variables
-declare -x BUILD_PATH=$(pwd)\..
+declare -x BUILD_PATH=$(pwd)
 
 cd $BUILD_PATH
 
@@ -25,9 +25,5 @@ docker-compose build
 # Deploy
 docker-compose up -d
 
-# Migrate DB
-yarn
-yarn migrate
 
-# Seed DB
-yarn seed
+

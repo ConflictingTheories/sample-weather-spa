@@ -1,10 +1,24 @@
 .weather {
+  
   /* Inspired by Demo at https://codepen.io/ycw/pen/gdLZdN */
   display: flex;
   justify-content: center;
   align-items: center;
   min-height: 100vh;
   overflow: hidden;
+
+  .details {
+    list-style: none;
+    background: #fff;
+    border-radius: 50%;
+    animation: none;
+    height: 120px;
+    position: absolute;
+    width: 120px;
+    top: 5%;
+    left: 35%;
+    animation:none;
+  }
 
   ul {
     width: 50vmin;
@@ -44,7 +58,7 @@
     top: 0;
   }
   li:nth-of-type(2) {
-    left: calc(50% - var(--a) * 2 - var(--d) * 1.5);
+    left: calc(50% - var(--a) * 2 - var(--d) * 3.5);
     top: calc(var(--h) * 0.5);
   }
   li:nth-of-type(3) {
@@ -52,23 +66,23 @@
     top: calc(var(--h) * 1.5);
   }
   li:nth-of-type(4) {
-    left: calc(50% - var(--a) - var(--d) * 0.5);
+    left: calc(50% - var(--a) - var(--d) * 5);
     top: calc(var(--h) * 2);
   }
   li:nth-of-type(5) {
     left: calc(50% + var(--d) * 1.5);
-    top: calc(var(--h) * 0.5);
+    top: calc(var(--h) * 1.5);
   }
   li:nth-of-type(6) {
-    left: calc(50% + var(--d) * 0.5);
-    top: calc(var(--h) * 1.5);
+    left: calc(50% + var(--d) * 2.5);
+    top: calc(var(--h) * 2.5);
   }
   li:nth-of-type(7) {
     left: calc(50% + var(--d) * 1);
     top: calc(var(--h) * 1);
   }
   li:nth-of-type(8) {
-    left: calc(50% + var(--d) * 2);
+    left: calc(50% + var(--d) * 4);
     top: calc(var(--h) * 1);
   }
 
@@ -127,6 +141,11 @@
     background: #fff;
     border-radius: 50%;
     animation: none;
+    height: 120px;
+    position: absolute;
+    width: 120px;
+    top: 25%;
+    left: 35%;
   }
 
   @keyframes grow {

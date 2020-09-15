@@ -13,7 +13,7 @@
 # \*                                            */
 
 # Read .ENV Variables
-declare -x BUILD_PATH=$(pwd)\..
+declare -x BUILD_PATH=$(pwd)
 
 cd $BUILD_PATH
 

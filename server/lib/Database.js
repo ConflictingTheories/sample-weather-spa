@@ -13,6 +13,8 @@
 
 const Sequelize = require("sequelize");
 
+console.log(process.env)
+
 // Connection to Database (SQL ORM)
 const DB = new Sequelize({
   database: process.env.DB_NAME,
