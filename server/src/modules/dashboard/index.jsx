@@ -58,7 +58,7 @@ import "../../styles/weather.less";
 import countries from "../../assets/countries.json";
 import weatherTypes from "../../assets/weatherTypes.json";
 
-const ICON_API = "http://openweathermap.org/img/wn/";
+const ICON_API = "https://openweathermap.org/img/wn/";
 
 const { Paragraph } = Placeholder;
 
@@ -71,6 +71,7 @@ class Dashboard extends React.Component {
     this.updateCountry = this.updateCountry.bind(this);
     this.renderDashboardTabs = this.renderDashboardTabs.bind(this);
     this.requestLocation = this.requestLocation.bind(this);
+    this.genForecast = this.genForecast.bind(this);
     // Store
     this.store = props.store;
     // State
@@ -162,9 +163,45 @@ class Dashboard extends React.Component {
     );
   }
 
+  // Generate Details for Display
+  genForecast(forecast, details) {
+    details.push(
+      <div className={"details"}>
+        <Callout intent={Intent.SUCCESS}>
+          <p>
+            <strong>{forecast.name}</strong>
+          </p>
+          <p>Temperature: {kelvinToCelsius(forecast.main.temp).toFixed(2)} C</p>
+          <p>Min: {kelvinToCelsius(forecast.main.temp_min).toFixed(2)} C</p>
+          <p>Max: {kelvinToCelsius(forecast.main.temp_max).toFixed(2)} C</p>
+          <p>Weather: {forecast.weather[0].description}</p>
+        </Callout>
+      </div>
+    );
+  }
+
   // Render Search & Weather Details
   renderDashboardTabs() {
     const { location, currentStep, forecast } = this.state;
+    const details = [];
+    const listItems = weatherTypes.map((type) => {
+      return forecast &&
+        forecast.weather &&
+        forecast.weather[0] &&
+        (forecast.weather[0].icon == type[0].code ||
+          forecast.weather[0].icon == type[1].code) ? (
+        // Active
+        <li className={"active"}>
+          {this.renderIcon(type[0].code)}
+          <h5>{forecast.weather[0].description || type[0].desc}</h5>
+          {this.genForecast(forecast, details)}
+        </li>
+      ) : (
+        // Not Active
+        <li>{this.renderIcon(type[0].code)}</li>
+      );
+    });
+
     return (
       <React.Fragment>
         <Callout
@@ -202,42 +239,8 @@ class Dashboard extends React.Component {
           }
         />
         <div className={"weather"}>
-          <ul>
-            {weatherTypes.map((type) => {
-              return forecast &&
-                forecast.weather &&
-                forecast.weather[0] &&
-                (forecast.weather[0].icon == type[0].code ||
-                  forecast.weather[0].icon == type[1].code) ? (
-                // Active
-                <li className={"active"}>
-                  {this.renderIcon(type[0].code)}
-                  <div className={"details"}>
-                    <Callout intent={Intent.SUCCESS}>
-                      <p>
-                        Temperature: {kelvinToCelsius(forecast.main.temp)} C
-                      </p>
-                      <p>
-                        Min:{" "}
-                        {kelvinToCelsius(forecast.main.temp_min).toFixed(2)} C
-                      </p>
-                      <p>
-                        Max:{" "}
-                        {kelvinToCelsius(forecast.main.temp_max).toFixed(2)} C
-                      </p>
-                      <p>
-                        Weather:{" "}
-                        {forecast.weather[0].description || type[0].desc}
-                      </p>
-                    </Callout>
-                  </div>
-                </li>
-              ) : (
-                // Not Active
-                <li>{this.renderIcon(type[0].code)}</li>
-              );
-            })}
-          </ul>
+          {details}
+          <ul>{listItems}</ul>
         </div>
       </React.Fragment>
     );
