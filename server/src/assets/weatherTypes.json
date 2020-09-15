@@ -1,0 +1,110 @@
+[
+  [
+    {
+      "type": "Clear",
+      "desc": "Clear Day",
+      "code": "01d"
+    },
+    {
+      "type": "Clear",
+      "desc": "Clear Night",
+      "code": "01n"
+    }
+  ],
+  [
+    {
+      "type": "Few Clouds",
+      "desc": "Few Clouds",
+      "code": "02d"
+    },
+    {
+      "type": "Few Clouds",
+      "desc": "Few Clouds",
+      "code": "02n"
+    }
+  ],
+  [
+    {
+      "type": "Scattered Clouds",
+      "desc": "Scattered Clouds",
+      "code": "03d"
+    },
+    {
+      "type": "Scattered Clouds",
+      "desc": "Scattered Clouds",
+      "code": "03n"
+    }
+  ],
+  [
+    {
+      "type": "Broken Clouds",
+      "desc": "Broken Clouds",
+      "code": "04d"
+    },
+    {
+      "type": "Broken Clouds",
+      "desc": "Broken Clouds",
+      "code": "04n"
+    }
+  ],
+  [
+    {
+      "type": "Shower Rain",
+      "desc": "Shower Rain",
+      "code": "09d"
+    },
+    {
+      "type": "Shower Rain",
+      "desc": "Shower Rain",
+      "code": "09n"
+    }
+  ],
+  [
+    {
+      "type": "Rain",
+      "desc": "Rain",
+      "code": "10d"
+    },
+    {
+      "type": "Rain",
+      "desc": "Rain",
+      "code": "10n"
+    }
+  ],
+  [
+    {
+      "type": "Thundershowers",
+      "desc": "Thundershowers",
+      "code": "11d"
+    },
+    {
+      "type": "Thundershowers",
+      "desc": "Thundershowers",
+      "code": "11n"
+    }
+  ],
+  [
+    {
+      "type": "Snow",
+      "desc": "Snow",
+      "code": "13d"
+    },
+    {
+      "type": "Snow",
+      "desc": "Snow",
+      "code": "13n"
+    }
+  ],
+  [
+    {
+      "type": "Mist",
+      "desc": "Mist",
+      "code": "50d"
+    },
+    {
+      "type": "Mist",
+      "desc": "Mist",
+      "code": "50n"
+    }
+  ]
+]

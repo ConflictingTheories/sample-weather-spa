@@ -22,6 +22,7 @@ import {
   Col,
   Notification,
   Placeholder,
+  Steps,
 } from "rsuite";
 import "rsuite/dist/styles/rsuite-dark.css";
 
@@ -44,9 +45,13 @@ import { getForecastByLatLng, getForecast } from "../../services/weather";
 
 // ASSETS & APP STYLES
 import "../../styles/App.less";
+import "../../styles/weather.less";
 
 // List of Countries
 import countries from "../../assets/countries.json";
+import weatherTypes from "../../assets/weatherTypes.json";
+
+const ICON_API = "http://openweathermap.org/img/wn/";
 
 const { Paragraph } = Placeholder;
 
@@ -58,10 +63,12 @@ class Dashboard extends React.Component {
     this.updateCity = this.updateCity.bind(this);
     this.updateCountry = this.updateCountry.bind(this);
     this.renderDashboardTabs = this.renderDashboardTabs.bind(this);
+    this.requestLocation = this.requestLocation.bind(this);
     // Store
     this.store = props.store;
     // State
     this.state = {
+      currentStep: 0,
       position: this.store.position || null,
       location: this.store.location || {
         city: "",
@@ -72,19 +79,24 @@ class Dashboard extends React.Component {
 
   // Request Location from Browser
   async requestLocation() {
+    const _that = this;
     if (navigator.geolocation) {
-      navigator.geolocation.watchPosition(function (position) {
-        console.log("Latitude is :", position.coords.latitude);
-        console.log("Longitude is :", position.coords.longitude);
-      });
       navigator.geolocation.getCurrentPosition(
-        function (position) {
+        async (position) => {
           console.log(position);
-          this.setState(position, () => {
-            this.store.position = position;
-          });
+          if (position && position.coords) {
+            const result = await getForecastByLatLng(
+              position.coords.latitude,
+              position.coords.longitude
+            );
+            console.log(result);
+            _that.setState({ position, forecast: result }, () => {
+              _that.store.position = position;
+              _that.store.forecast = result;
+            });
+          }
         },
-        function (error) {
+        (error) => {
           console.error("Error Code = " + error.code + " - " + error.message);
         }
       );
@@ -96,7 +108,7 @@ class Dashboard extends React.Component {
     const { location } = this.state;
     if (location) {
       const result = await getForecast(location.city, location.country);
-      this.setState({ forecase: result }, () => {
+      this.setState({ forecast: result, currentStep: 1 }, () => {
         this.store.forecast = result;
       });
     }
@@ -120,21 +132,18 @@ class Dashboard extends React.Component {
     });
   }
 
+  // Render Weather Icon
+  renderIcon(iconCode) {
+    return <img src={`${ICON_API}/${iconCode}@2x.png`} />;
+  }
+
   // Search Location if available
   async componentDidMount() {
     // Fetch Location on Load (if Permission Given)
     await this.requestLocation();
-    const { position } = this.state;
-    if (position && position.coords) {
-      const result = await getForecastByLatLng(
-        position.coords.latitude,
-        position.coords.longitude
-      );
-      this.setState({ forecast: result }, () => {
-        this.store.forecast = result;
-      });
-    }
-
+    // ...
+    // Do Other Stuff Like City / Etc.
+    // ...
     // Provide "Notification"
     setTimeout(
       () =>
@@ -146,16 +155,15 @@ class Dashboard extends React.Component {
     );
   }
 
+  // Render Search & Weather Details
   renderDashboardTabs() {
-    const { location } = this.state;
+    const { location, currentStep } = this.state;
     return (
       <React.Fragment>
         <Callout
           intent={Intent.SUCCESS}
           title={"Weather SPA Template - Loaded ✓"}
-        >
-          <Paragraph width={320} rows={3} />
-        </Callout>
+        />
         <div>
           <label>City</label>
           <input value={location.city || ""} onChange={this.updateCity} />
@@ -177,6 +185,17 @@ class Dashboard extends React.Component {
 
           <h1>Lookup for: {this.state.position} </h1>
           <p>{this.state.forecast}</p>
+        </div>
+        <div className={"weather"}>
+          <ul>
+            {weatherTypes.map((type) => {
+              return (
+                <li>
+                  <div>{this.renderIcon(type[0].code)}</div>
+                </li>
+              );
+            })}
+          </ul>
         </div>
       </React.Fragment>
     );
@@ -207,7 +226,7 @@ class Dashboard extends React.Component {
             <Content>{this.renderDashboardTabs()}</Content>
           </Container>
         </div>
-        {/* MEETING sidebar */}
+        {/* sidebar */}
       </div>
     );
   }
