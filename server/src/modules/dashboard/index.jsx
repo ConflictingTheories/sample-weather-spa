@@ -32,6 +32,7 @@ import {
   Tabs,
   Tab,
   NonIdealState,
+  ControlGroup,
   InputGroup,
   Intent,
   Callout,
@@ -78,7 +79,7 @@ class Dashboard extends React.Component {
       position: this.store.position || null,
       location: this.store.location || {
         city: "",
-        country: "",
+        country: "CA",
       },
       forecast: this.store.forecast || null,
     };
@@ -113,7 +114,7 @@ class Dashboard extends React.Component {
   async fetchByCity() {
     const { location } = this.state;
     if (location) {
-      const result = await getForecast(location.city, location.country);
+      const result = await getForecast(location.country, location.city);
       this.setState({ forecast: result.forecast, currentStep: 1 }, () => {
         this.store.forecast = result.forecast;
       });
@@ -174,27 +175,29 @@ class Dashboard extends React.Component {
               {forecast ? `Lookup For: ${forecast.name}` : "Enter Search"},
               <br />
               <hr />
-              <InputGroup
-                placeholder={"City"}
-                value={location.city || ""}
-                onChange={this.updateCity}
-              />
-              <select
-                placeholder={"Country"}
-                className={"bp3-fill bp3-large"}
-                onChange={this.updateCountry}
-              >
-                {countries.map((x) =>
-                  x.code == location.country ? (
-                    <option selected value={x.code}>
-                      {x.value}
-                    </option>
-                  ) : (
-                    <option value={x.code}>{x.value}</option>
-                  )
-                )}
-              </select>
-              <Button onClick={() => this.fetchByCity()}>Lookup</Button>
+              <ControlGroup fill>
+                <InputGroup
+                  placeholder={"City"}
+                  value={location.city || ""}
+                  onChange={this.updateCity}
+                />
+                  <select
+                    placeholder={"Country"}
+                    className={"bp3-fill bp3-large"}
+                    onChange={this.updateCountry}
+                  >
+                    {countries.map((x) =>
+                      x.code == location.country ? (
+                        <option selected value={x.code}>
+                          {x.value}
+                        </option>
+                      ) : (
+                        <option value={x.code}>{x.value}</option>
+                      )
+                    )}
+                  </select>
+                <Button onClick={() => this.fetchByCity()}>Lookup</Button>
+              </ControlGroup>
             </React.Fragment>
           }
         />
@@ -213,9 +216,7 @@ class Dashboard extends React.Component {
                 </li>
               ) : (
                 // Not Active
-                <li>
-                  {this.renderIcon(type[0].code)}
-                </li>
+                <li>{this.renderIcon(type[0].code)}</li>
               );
             })}
           </ul>

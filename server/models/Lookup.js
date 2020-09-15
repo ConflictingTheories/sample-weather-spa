@@ -16,7 +16,7 @@ const { Model, DataTypes } = require("sequelize");
 // Pass in DB Handler Instance
 module.exports = (DB) => {
   class Lookup extends Model {}
-  User.init(
+  Lookup.init(
     {
       id: { type: DataTypes.INTEGER, autoIncrement: true, primaryKey: true },
       city: { type: DataTypes.STRING, allowNull: true },
@@ -28,5 +28,5 @@ module.exports = (DB) => {
     },
     { sequelize: DB, modelName: "lookup" }
   );
-  return User;
+  return Lookup;
 };

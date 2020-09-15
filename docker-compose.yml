@@ -1,4 +1,4 @@
-version: "3.5"
+version: "2"
 services:
   # Load Balancer (NginX)
   weather_lb:
@@ -58,7 +58,7 @@ services:
       WEATHER_API_KEY: ${WEATHER_API_KEY}
       PUBLIC_URL: ${PUBLIC_URL}
       ENABLE_AUTH: ${ENABLE_AUTH}
-# Network to Communicate
-networks:
-  default:
-    name: weather-network
+# # Network to Communicate
+# networks:
+#   default:
+#     name: weather-network

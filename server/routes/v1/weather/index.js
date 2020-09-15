@@ -20,14 +20,14 @@ const router = express.Router({
 // Error Helper
 const Error = require("../../../lib/Error");
 
-// Models
-const Lookup = require("../../../models/Lookup");
-
 // Open Weather API
 const WEATHER_ENDPOINT = "https://api.openweathermap.org/data/2.5/weather";
 const API_KEY = process.env.WEATHER_API_KEY;
 
 module.exports = (DB) => {
+  // Models
+  const Lookup = require("../../../models/Lookup")(DB);
+
   // GET /:country/:city (default forecast settings)
   router.get("/:country/:city", async (req, res) => {
     try {
@@ -36,15 +36,14 @@ module.exports = (DB) => {
       const lookup = await lookupByCityCountry(city, country);
       const date = new Date();
       // Post to DB Log
-      // await DB.sync();
-      // await Lookup.create({
-      //   country,
-      //   city,
-      //   createdAt: date,
-      //   updatedAt: date,
-      // });
+      await DB.sync();
+      await Lookup.create({
+        country,
+        city,
+        createdAt: date,
+        updatedAt: date,
+      });
       // Return Data
-      console.log(lookup);
       let status = {
         status: 200,
         msg: lookup,
@@ -64,15 +63,14 @@ module.exports = (DB) => {
       const lookup = await lookupByLatLng(lat, lng);
       const date = new Date();
       // Post to DB Log
-      // await DB.sync();
-      // await Lookup.create({
-      //   lat,
-      //   lng,
-      //   createdAt: date,
-      //   updatedAt: date,
-      // });
+      await DB.sync();
+      await Lookup.create({
+        lat,
+        lng,
+        createdAt: date,
+        updatedAt: date,
+      });
       // Return Data
-      console.log(lookup);
       let status = {
         status: 200,
         msg: lookup,
@@ -90,12 +88,12 @@ module.exports = (DB) => {
 // Lookup Lat/Lng
 async function lookupByLatLng(lat, lng) {
   const url = `${WEATHER_ENDPOINT}?lat=${lat}&lon=${lng}&appid=${API_KEY}`;
-  const {data} = await axios(url);
+  const { data } = await axios(url);
   return data;
 }
 // Lookup City/County
 async function lookupByCityCountry(city, country) {
   const url = `${WEATHER_ENDPOINT}?q=${city},${country}&appid=${API_KEY}`;
-  const {data} = await axios(url);
+  const { data } = await axios(url);
   return data;
 }
