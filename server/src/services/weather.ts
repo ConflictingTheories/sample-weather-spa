@@ -15,25 +15,30 @@ import ApiHelper from "../helpers/apiHelper";
 
 // GET /weather/:country/:city
 export async function getForecast(country: string, city: string) {
-  return ApiHelper.get(`/weather/${country}/${city}`).then((forecast: any) => {
-    if (forecast) {
-      console.log(forecast);
-    }
-    return {
-      forecast,
-    };
-  });
+  const forecast = await ApiHelper.get(`/weather/${country}/${city}`);
+  if (forecast) {
+    console.log(forecast);
+  }
+  return {
+    forecast: forecast.msg,
+  };
 }
 
 // GET /weather/geo/:lat/:lng
 export async function getForecastByLatLng(lat: number, lng: number) {
-  return ApiHelper.get(`/weather/geo/${lat}/${lng}`).then((forecast: any) => {
-    if (forecast) {
-      console.log(forecast);
-    }
-    return {
-      forecast,
-    };
-  });
+  const forecast = await ApiHelper.get(`/weather/geo/${lat}/${lng}`);
+  if (forecast) {
+    console.log(forecast);
+  }
+  return {
+    forecast: forecast.msg,
+  };
 }
 
+export function kelvinToCelsius(kelvin:number) {
+  return kelvin - 273.15;
+}
+
+export function kelvinToFarenheit(kelvin:number) {
+  return (kelvin - 273.15) * (5 / 9) + 32;
+}

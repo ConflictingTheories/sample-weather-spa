@@ -1,7 +1,7 @@
 const crypto = require("crypto");
 
-module.exports = (() => {
-  return {
+module.exports = (function Crypto() {
+  const _that = {
     // Sha512
     sha512: (password, salt) => {
       var hash = crypto.createHmac("sha512", salt);
@@ -21,9 +21,10 @@ module.exports = (() => {
     },
     // Password Hash
     saltHashPassword: (pass) => {
-      var salt = this.genRandomHex(16);
-      var passwordData = this.sha512(pass, salt);
+      var salt = _that.genRandomHex(16);
+      var passwordData = _that.sha512(pass, salt);
       return passwordData;
     },
   };
+  return _that;
 })();

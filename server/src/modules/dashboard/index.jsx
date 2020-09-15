@@ -32,6 +32,7 @@ import {
   Tabs,
   Tab,
   NonIdealState,
+  InputGroup,
   Intent,
   Callout,
 } from "@blueprintjs/core";
@@ -41,7 +42,12 @@ import "../../../node_modules/@blueprintjs/icons/lib/css/blueprint-icons.css";
 import NavBar from "../../components/nav";
 import SideMenu from "../../components/menu";
 
-import { getForecastByLatLng, getForecast } from "../../services/weather";
+import {
+  getForecastByLatLng,
+  getForecast,
+  kelvinToCelsius,
+  kelvinToFarenheit,
+} from "../../services/weather";
 
 // ASSETS & APP STYLES
 import "../../styles/App.less";
@@ -74,6 +80,7 @@ class Dashboard extends React.Component {
         city: "",
         country: "",
       },
+      forecast: this.store.forecast || null,
     };
   }
 
@@ -89,10 +96,9 @@ class Dashboard extends React.Component {
               position.coords.latitude,
               position.coords.longitude
             );
-            console.log(result);
-            _that.setState({ position, forecast: result }, () => {
+            _that.setState({ position, forecast: result.forecast }, () => {
               _that.store.position = position;
-              _that.store.forecast = result;
+              _that.store.forecast = result.forecast;
             });
           }
         },
@@ -108,8 +114,8 @@ class Dashboard extends React.Component {
     const { location } = this.state;
     if (location) {
       const result = await getForecast(location.city, location.country);
-      this.setState({ forecast: result, currentStep: 1 }, () => {
-        this.store.forecast = result;
+      this.setState({ forecast: result.forecast, currentStep: 1 }, () => {
+        this.store.forecast = result.forecast;
       });
     }
   }
@@ -117,7 +123,7 @@ class Dashboard extends React.Component {
   // Update Handler
   updateCity(x) {
     const { location } = this.state;
-    location.city = x;
+    location.city = x.target.value;
     this.setState({ location }, () => {
       this.store.location = location;
     });
@@ -126,7 +132,7 @@ class Dashboard extends React.Component {
   // Handler
   updateCountry(x) {
     const { location } = this.state;
-    location.country = x;
+    location.country = x.target.value;
     this.setState({ location }, () => {
       this.store.location = location;
     });
@@ -162,53 +168,53 @@ class Dashboard extends React.Component {
       <React.Fragment>
         <Callout
           intent={Intent.SUCCESS}
-          title={"Weather SPA Template - Loaded ✓"}
+          title={
+            <React.Fragment>
+              Weather SPA Template - Loaded ✓ ::
+              {forecast ? `Lookup For: ${forecast.name}` : "Enter Search"},
+              <br />
+              <hr />
+              <InputGroup
+                placeholder={"City"}
+                value={location.city || ""}
+                onChange={this.updateCity}
+              />
+              <select
+                placeholder={"Country"}
+                className={"bp3-fill bp3-large"}
+                onChange={this.updateCountry}
+              >
+                {countries.map((x) =>
+                  x.code == location.country ? (
+                    <option selected value={x.code}>
+                      {x.value}
+                    </option>
+                  ) : (
+                    <option value={x.code}>{x.value}</option>
+                  )
+                )}
+              </select>
+              <Button onClick={() => this.fetchByCity()}>Lookup</Button>
+            </React.Fragment>
+          }
         />
-        <div>
-          <label>City</label>
-          <input value={location.city || ""} onChange={this.updateCity} />
-
-          <label>Country</label>
-          <select onChange={this.updateCountry}>
-            {countries.map((x) =>
-              x.code == location.country ? (
-                <option selected value={x.code}>
-                  {x.value}
-                </option>
-              ) : (
-                <option value={x.code}>{x.value}</option>
-              )
-            )}
-          </select>
-
-          <Button onClick={() => this.fetchByCity()}>Lookup</Button>
-
-          <h1>Lookup for: {this.state.position} </h1>
-          <p>{this.state.forecast}</p>
-        </div>
-        <div className={"weathershow"}>
-          <div className={"outer"}>
-            <p>OCTAGON</p>
-            <div className={"inner"}></div>
-          </div>
-        </div>
         <div className={"weather"}>
           <ul>
             {weatherTypes.map((type) => {
-              return (
+              return forecast &&
+                forecast.weather &&
+                forecast.weather[0] &&
+                (forecast.weather[0].icon == type[0].code ||
+                  forecast.weather[0].icon == type[1].code) ? (
+                // Active
+                <li className={"active"}>
+                  {this.renderIcon(type[0].code)}
+                  <h4>{forecast.weather[0].description || type[0].desc}</h4>
+                </li>
+              ) : (
+                // Not Active
                 <li>
-                  {forecast &&
-                  forecast.weather &&
-                  (forecast.weather.code == type[0].code ||
-                    forecast.weather.code == type[0].code) ? (
-                    // Active
-                    <div style={{ background: "red" }}>
-                      {this.renderIcon(type[0].code)}
-                    </div>
-                  ) : (
-                    // Not Active
-                    <div>{this.renderIcon(type[0].code)}</div>
-                  )}
+                  {this.renderIcon(type[0].code)}
                 </li>
               );
             })}
