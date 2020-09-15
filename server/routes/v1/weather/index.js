@@ -88,7 +88,7 @@ module.exports = (DB) => {
 // Lookup Lat/Lng
 async function lookupByLatLng(lat, lng) {
   return await axios(
-    `${WEATHER_ENDPOINT}?lat=${lat}&lng${lng}&appid=${API_KEY}`
+    `${WEATHER_ENDPOINT}?lat=${lat}&lon=${lng}&appid=${API_KEY}`
   );
 }
 // Lookup City/County

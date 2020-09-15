@@ -157,7 +157,7 @@ class Dashboard extends React.Component {
 
   // Render Search & Weather Details
   renderDashboardTabs() {
-    const { location, currentStep } = this.state;
+    const { location, currentStep, forecast } = this.state;
     return (
       <React.Fragment>
         <Callout
@@ -186,12 +186,29 @@ class Dashboard extends React.Component {
           <h1>Lookup for: {this.state.position} </h1>
           <p>{this.state.forecast}</p>
         </div>
+        <div className={"weathershow"}>
+          <div className={"outer"}>
+            <p>OCTAGON</p>
+            <div className={"inner"}></div>
+          </div>
+        </div>
         <div className={"weather"}>
           <ul>
             {weatherTypes.map((type) => {
               return (
                 <li>
-                  <div>{this.renderIcon(type[0].code)}</div>
+                  {forecast &&
+                  forecast.weather &&
+                  (forecast.weather.code == type[0].code ||
+                    forecast.weather.code == type[0].code) ? (
+                    // Active
+                    <div style={{ background: "red" }}>
+                      {this.renderIcon(type[0].code)}
+                    </div>
+                  ) : (
+                    // Not Active
+                    <div>{this.renderIcon(type[0].code)}</div>
+                  )}
                 </li>
               );
             })}
