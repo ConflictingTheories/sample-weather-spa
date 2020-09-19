@@ -1,5 +1,4 @@
 .weather {
-  
   /* Inspired by Demo at https://codepen.io/ycw/pen/gdLZdN */
   display: flex;
   justify-content: center;
@@ -48,18 +47,22 @@
   }
 
   li:nth-of-type(1) {
+    animation-delay: 29ms;
     left: calc(50% - var(--a) - var(--d) * 0.5);
     top: 0;
   }
   li:nth-of-type(2) {
+    animation-delay: 32ms;
     left: calc(50% - var(--a) * 2 - var(--d) * 3.5);
     top: calc(var(--h) * 0.5);
   }
   li:nth-of-type(3) {
+    animation-delay: 45ms;
     left: calc(50% - var(--a) * 2 - var(--d) * 1.5);
     top: calc(var(--h) * 1.5);
   }
   li:nth-of-type(4) {
+    animation-delay: 23ms;
     left: calc(50% - var(--a) - var(--d) * 5);
     top: calc(var(--h) * 2);
   }
@@ -68,14 +71,17 @@
     top: calc(var(--h) * 1.5);
   }
   li:nth-of-type(6) {
+    animation-delay: 20ms;
     left: calc(50% + var(--d) * 2.5);
     top: calc(var(--h) * 2.5);
   }
   li:nth-of-type(7) {
+    animation-delay: 35ms;
     left: calc(50% + var(--d) * 1);
     top: calc(var(--h) * 1);
   }
   li:nth-of-type(8) {
+    animation-delay: 11ms;
     left: calc(50% + var(--d) * 4);
     top: calc(var(--h) * 1);
   }
@@ -101,11 +107,16 @@
     animation: r 4s forwards;
   }
   @keyframes r {
-    from {
+    0% {      
       transform: rotate(180deg);
     }
-    to {
+    40%,
+    100% {
       transform: rotate(0);
+      transform: scale(0.8);
+    }
+    20% {
+      transform: scale(1.3);
     }
   }
 
