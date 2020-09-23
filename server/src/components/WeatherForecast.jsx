@@ -12,30 +12,17 @@
 \*                                            */
 
 import React, { Component } from "react";
-import { collect } from "react-recollect";
+import { collect, store, batch } from "react-recollect";
+import { withSplashScreen } from "./utils/splashScreen";
 
 // RSuite UI Library
-import {
-  Container,
-  Icon,
-  Panel,
-  Content,
-  Row,
-  Col,
-  InputGroup,
-} from "rsuite";
+import { Container, Icon, Panel, Content, Row, Col, InputGroup } from "rsuite";
 
-import "rsuite/dist/styles/rsuite-dark.css";
-
-class WBPanel extends Component {
+class WeatherForecast extends Component {
   constructor(props) {
     super(props);
-
     this.renderBody = this.renderBody.bind(this);
     this.renderHeader = this.renderHeader.bind(this);
-
-    this.store = props.store;
-
     this.state = {
       title: props.title,
       renderHeader: props.renderHeader || this.renderHeader,
@@ -58,7 +45,7 @@ class WBPanel extends Component {
   }
 
   renderBody() {
-      return (<div></div>)
+    return <div></div>;
   }
 
   render() {
@@ -72,4 +59,6 @@ class WBPanel extends Component {
   }
 }
 
-export default collect(WBPanel);
+export default collect(
+  withSplashScreen(WeatherForecast, "Loading Forecast...")
+);

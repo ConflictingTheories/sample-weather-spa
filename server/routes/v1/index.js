@@ -20,10 +20,8 @@ const FF = require("../../config/featureFlags");
 
 // Export Route
 module.exports = (DB) => {
-  const authRoute = require("./auth")(DB);
   const weatherRoute = require("./weather")(DB);
   // API Routes (V1)
-  if (FF.ENABLE_AUTH) router.use("/auth", authRoute);
   if (FF.ENABLE_WEATHER) router.use("/weather", weatherRoute);
   // Return Router
   return router;

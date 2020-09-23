@@ -24,7 +24,6 @@ import {
   Placeholder,
   Steps,
 } from "rsuite";
-import "rsuite/dist/styles/rsuite-dark.css";
 
 // BLUEPRINT STYLES
 import {
@@ -37,11 +36,6 @@ import {
   Intent,
   Callout,
 } from "@blueprintjs/core";
-import "../../../node_modules/@blueprintjs/core/lib/css/blueprint.css";
-import "../../../node_modules/@blueprintjs/icons/lib/css/blueprint-icons.css";
-
-import NavBar from "../../components/nav";
-import SideMenu from "../../components/menu";
 
 import {
   getForecastByLatLng,
@@ -49,10 +43,6 @@ import {
   kelvinToCelsius,
   kelvinToFarenheit,
 } from "../../services/weather";
-
-// ASSETS & APP STYLES
-import "../../styles/App.less";
-import "../../styles/weather.less";
 
 // List of Countries
 import countries from "../../assets/countries.json";
@@ -256,22 +246,11 @@ class Dashboard extends React.Component {
           minHeight: "100vh",
         }}
       >
-        <SideMenu
-          activeKey={"1"}
-          style={{ flex: 1, flexShrink: 1, flexGrow: 0 }}
-        />
         <div style={{ display: "flex", flex: 1, flexDirection: "row" }}>
           <Container>
-            <NavBar
-              isLogin={false}
-              renderBrand={this.renderClientSelect}
-              renderBar={() => null}
-              renderRight={() => null}
-            />
             <Content>{this.renderDashboardTabs()}</Content>
           </Container>
         </div>
-        {/* sidebar */}
       </div>
     );
   }
