@@ -19,8 +19,8 @@ const router = express.Router({ mergeParams: true });
 const FF = require("../../config/featureFlags");
 
 // Export Route
-module.exports = (DB) => {
-  const weatherRoute = require("./weather")(DB);
+module.exports = () => {
+  const weatherRoute = require("./weather");
   // API Routes (V1)
   if (FF.ENABLE_WEATHER) router.use("/weather", weatherRoute);
   // Return Router

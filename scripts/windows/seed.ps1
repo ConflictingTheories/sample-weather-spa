@@ -10,20 +10,20 @@
 # **           All Rights Reserved.             **
 # ** ------------------------------------------ **
 # \*                                            */
-
 # Read .ENV Variables
 $env:BUILD_PATH="$(Get-Location)"
 Set-Location $env:BUILD_PATH;
 
 foreach( $line in $(Get-Content "$env:BUILD_PATH\.env")){
     $envData = $line.Split('=')
-    [Environment]::SetEnvironmentVariable($envData[0], $envData[1], "User")   
+    Write-Output "$($envData.get(0))=$($envData.get(1))"
+    [Environment]::SetEnvironmentVariable($envData.get(0), $null, 'User')
+    [Environment]::SetEnvironmentVariable($envData.get(0), $envData.get(1), "User")   
 }
+
 
 Set-Location $env:BUILD_PATH\server
 
-yarn
-
-yarn seed
+yarn seed $args
 
 Set-Location $env:BUILD_PATH;

@@ -16,7 +16,7 @@ const express = require("express");
 const path = require("path");
 const router = express.Router({ mergeParams: true });
 
-module.exports = function (_) {
+module.exports = function () {
 
   router.use("*", express.static(path.join(__dirname,"../build")));
 

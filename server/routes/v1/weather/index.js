@@ -24,9 +24,9 @@ const Error = require("../../../lib/Error");
 const WEATHER_ENDPOINT = "https://api.openweathermap.org/data/2.5/weather";
 const API_KEY = process.env.WEATHER_API_KEY;
 
-module.exports = (DB) => {
+module.exports = () => {
   // Models
-  const Lookup = require("../../../models/Lookup")(DB);
+  const Lookup = require("../../../models/Lookup");
 
   // GET /:country/:city (default forecast settings)
   router.get("/:country/:city", async (req, res) => {

@@ -9,6 +9,8 @@ services:
       - "./load-balancer/certs:/etc/letsencrypt"
     depends_on:
       - "weather_portal"
+    links:
+      - "weather_portal:weather_portal"
     build:
       context: ./load-balancer/
     ports:
@@ -24,7 +26,7 @@ services:
     command: --default-authentication-plugin=mysql_native_password
     restart: always
     ports:
-      - "3306:3306"
+      - "${DB_PORT}:3306"
     environment:
       MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD}
       MYSQL_USER: ${DB_USER}
@@ -37,6 +39,8 @@ services:
     restart: always
     build:
       context: ./server/
+    links:
+      - "weather_db:weather_db"
     depends_on:
       - "weather_db"
     ports:
@@ -50,6 +54,7 @@ services:
       API_VERSION: ${API_VERSION}
       API_ROUTE_PATH: ${API_ROUTE_PATH}
       DB_TYPE: ${DB_TYPE}
+      DB_PORT: ${DB_PORT}
       DB_HOST: ${DB_HOST}
       DB_USER: ${DB_USER}
       DB_PASS: ${DB_PASS}
@@ -57,7 +62,3 @@ services:
       WEATHER_API_KEY: ${WEATHER_API_KEY}
       PUBLIC_URL: ${PUBLIC_URL}
       ENABLE_AUTH: ${ENABLE_AUTH}
-# # Network to Communicate
-# networks:
-#   default:
-#     name: weather-network

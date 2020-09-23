@@ -12,9 +12,10 @@
 \*                                            */
 
 const { Model, DataTypes } = require("sequelize");
+const DB = require('../lib/Database');
 
 // Pass in DB Handler Instance
-module.exports = (DB) => {
+module.exports = () => {
   class Lookup extends Model {}
   Lookup.init(
     {

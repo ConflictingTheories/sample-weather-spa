@@ -23,10 +23,9 @@ const server = require("http").Server(app);
 
 // CONFIGURATION
 const Error = require("../lib/Error");
-const DB = require("../lib/Database");
 
 // INDEX MODULES
-const index = require("../routes/index")(DB);
+const index = require("../routes/index");
 
 // ---- API CODE BELOW ----
 
@@ -56,7 +55,7 @@ app.use("/api/:ver", (req, res) => {
   // Switch Versions
   switch (apiVer) {
     case "v1":
-      apiRouter = require("../routes/" + apiVer + "/index.js")(DB);
+      apiRouter = require("../routes/" + apiVer + "/index.js");
       apiRouter(req, res);
       break;
     default:
