@@ -456,8 +456,6 @@ class WeatherForecast extends Component {
           style={{
             padding: "0.2em 0.3em",
             minWidth: "55vw",
-            maxHeight: "65vh",
-            width: "55vw",
             padding: "1em",
           }}
         >
