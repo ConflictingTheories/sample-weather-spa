@@ -65,10 +65,13 @@ module.exports = (() => {
   router.get("/forecast/:country/:city", async (req, res) => {
     try {
       const { country, city } = req.params;
-      const lookup = await lookupForecastByCityCountry(city, country);
+      const current = await lookupByCityCountry(city, country);
+
+      const forecast = await lookupForecastByCityCountry(city, country);
       let status = {
         status: 200,
-        msg: lookup,
+        current,
+        forecast,
       };
       res.json(status);
     } catch (e) {
@@ -82,20 +85,13 @@ module.exports = (() => {
     try {
       const { lat, lng } = req.params;
       // Lookup using Open Weather API
-      const lookup = await lookupForecastByLatLng(lat, lng);
-      const date = new Date();
-      // Post to DB Log
-      await DB.sync();
-      await Lookup.create({
-        lat,
-        lng,
-        createdAt: date,
-        updatedAt: date,
-      });
+      const current = await lookupByLatLng(lat, lng);
+      const forecast = await lookupForecastByLatLng(lat, lng);
       // Return Data
       let status = {
         status: 200,
-        msg: lookup,
+        current,
+        forecast,
       };
       res.json(status);
     } catch (e) {

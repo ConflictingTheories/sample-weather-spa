@@ -42,7 +42,8 @@ export async function getDailyForecast(country: string, city: string) {
     console.log(forecast);
   }
   return {
-    forecast: forecast.msg,
+    forecast: forecast.forecast,
+    current: forecast.current,
   };
 }
 
@@ -53,7 +54,8 @@ export async function getDailyForecastByLatLng(lat: number, lng: number) {
     console.log(forecast);
   }
   return {
-    forecast: forecast.msg,
+    forecast: forecast.forecast,
+    current: forecast.current,
   };
 }
 

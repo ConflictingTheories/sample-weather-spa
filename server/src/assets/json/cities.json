@@ -1,14 +1,14 @@
 [
   {
-    "value": "Calgary",
-    "code": "CA"
+    "city": "Calgary",
+    "country": "CA"
   },
   {
-    "value": "Tokyo",
-    "code": "JP"
+    "city": "Tokyo",
+    "country": "JP"
   },
   {
-    "value": "New York",
-    "code": "US"
+    "city": "New York",
+    "country": "US"
   }
 ]

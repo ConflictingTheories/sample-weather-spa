@@ -27,6 +27,7 @@ import {
   Placeholder,
   FlexboxGrid,
   Header,
+  Nav,
 } from "rsuite";
 
 // BLUEPRINT STYLES
@@ -39,13 +40,16 @@ import {
 } from "@blueprintjs/core";
 
 // List of Countries
+import cities from "../assets/json/cities.json";
 import countries from "../assets/json/countries.json";
 import weatherTypes from "../assets/json/weatherTypes.json";
 
 // Weather Service
 import {
   getForecastByLatLng,
+  getDailyForecastByLatLng,
   getForecast,
+  getDailyForecast,
   kelvinToCelsius,
   kelvinToFarenheit,
 } from "../services/weather";
@@ -66,20 +70,36 @@ class WeatherForecast extends Component {
     this.genForecast = this.genForecast.bind(this);
     this.renderBody = this.renderBody.bind(this);
     this.renderHeader = this.renderHeader.bind(this);
+    this.renderSearchBar = this.renderSearchBar.bind(this);
+    this.renderHeader = this.renderHeader.bind(this);
 
     // State
     this.state = {
-      title: props.title,
-      currentStep: 0,
+      currentTab: "search",
       position: store.position || null,
       location: store.location || {
         city: "",
         country: "CA",
       },
       forecast: store.forecast || null,
+      current: store.current || null,
       renderHeader: props.renderHeader || this.renderHeader,
       renderBody: props.renderBody || this.renderBody,
     };
+  }
+
+  async componentDidMount() {
+    // Fetch Location on Load (if Permission Given)
+    await this.requestLocation();
+    // Provide "Notification"
+    setTimeout(
+      () =>
+        Notification.open({
+          title: "Storm Warning 🐙👾 - WOOOH!!",
+          description: <Paragraph width={320} rows={3} />,
+        }),
+      ~~(Math.random() * 10000)
+    );
   }
 
   // Request Location from Browser
@@ -89,14 +109,18 @@ class WeatherForecast extends Component {
       navigator.geolocation.getCurrentPosition(
         async (position) => {
           if (position && position.coords) {
-            const result = await getForecastByLatLng(
+            const result = await getDailyForecastByLatLng(
               position.coords.latitude,
               position.coords.longitude
             );
-            _that.setState({ position, forecast: result.forecast }, () => {
-              store.position = position;
-              store.forecast = result.forecast;
-            });
+            _that.setState(
+              { position, forecast: result.forecast, current: result.current },
+              () => {
+                store.position = position;
+                store.current = result.current;
+                store.forecast = result.forecast;
+              }
+            );
           }
         },
         (error) => {
@@ -110,10 +134,14 @@ class WeatherForecast extends Component {
   async fetchByCity() {
     const { location } = this.state;
     if (location) {
-      const result = await getForecast(location.country, location.city);
-      this.setState({ forecast: result.forecast, currentStep: 1 }, () => {
-        store.forecast = result.forecast;
-      });
+      const result = await getDailyForecast(location.country, location.city);
+      this.setState(
+        { forecast: result.forecast, current: result.current },
+        () => {
+          store.current = result.current;
+          store.forecast = result.forecast;
+        }
+      );
     }
   }
 
@@ -140,20 +168,6 @@ class WeatherForecast extends Component {
     return <img src={require(`../assets/icons/${iconCode}.png`)} />;
   }
 
-  async componentDidMount() {
-    // Fetch Location on Load (if Permission Given)
-    await this.requestLocation();
-    // Provide "Notification"
-    setTimeout(
-      () =>
-        Notification.open({
-          title: "Storm Warning 🐙👾 - WOOOH!!",
-          description: <Paragraph width={320} rows={3} />,
-        }),
-      ~~(Math.random() * 10000)
-    );
-  }
-
   // Generate Details for Display
   genForecast(forecast, details) {
     details.push(
@@ -171,93 +185,121 @@ class WeatherForecast extends Component {
     );
   }
 
+  // Render Search Bar
+  renderSearchBar(forecast) {
+    const { location } = this.state;
+    return (
+      <Callout
+        title={
+          <React.Fragment>
+            Chaos Weather Loaded ✓ ::
+            {forecast ? `Lookup For: ${forecast.name}` : "Enter Search"},
+            <br />
+            <hr />
+            <ControlGroup fill>
+              <InputGroup
+                placeholder={"City"}
+                value={location.city || ""}
+                onChange={this.updateCity}
+              />
+              <select
+                placeholder={"Country"}
+                className={"bp3-fill bp3-large"}
+                onChange={this.updateCountry}
+              >
+                {countries.map((x) =>
+                  x.code == location.country ? (
+                    <option selected value={x.code}>
+                      {x.value}
+                    </option>
+                  ) : (
+                    <option value={x.code}>{x.value}</option>
+                  )
+                )}
+              </select>
+              <Button onClick={() => this.fetchByCity()}>Lookup</Button>
+            </ControlGroup>
+          </React.Fragment>
+        }
+      />
+    );
+  }
   // Forecast Tabs
   renderDashboardTabs() {
-    const { location, currentStep, forecast } = this.state;
+    const { forecast, current } = this.state;
     const details = [];
     const listItems = weatherTypes.map((type) => {
-      return forecast &&
-        forecast.weather &&
-        forecast.weather[0] &&
-        (forecast.weather[0].icon == type[0].code ||
-          forecast.weather[0].icon == type[1].code) ? (
+      return current &&
+        current.weather &&
+        current.weather[0] &&
+        (current.weather[0].icon == type[0].code ||
+          current.weather[0].icon == type[1].code) ? (
         // Active
         <li className={"active"}>
-          {this.renderIcon(forecast.weather[0].icon)}
-          <h5>{forecast.weather[0].description || type[0].desc}</h5>
-          {this.genForecast(forecast, details)}
+          {this.renderIcon(current.weather[0].icon)}
+          <h5>{current.weather[0].description || type[0].desc}</h5>
+          {this.genForecast(current, details)}
         </li>
-      ) : (
-        // Not Active
-        <li>{this.renderIcon(type[0].code)}</li>
-      );
+      ) : null;
     });
 
     return (
       <React.Fragment>
-        {/* CUSTOM SEARCH  */}
-        <Callout
-          intent={Intent.SUCCESS}
-          title={
-            <React.Fragment>
-              Weather SPA Template - Loaded ✓ :: {this.state.title}
-              {forecast ? `Lookup For: ${forecast.name}` : "Enter Search"},
-              <br />
-              <hr />
-              <ControlGroup fill>
-                <InputGroup
-                  placeholder={"City"}
-                  value={location.city || ""}
-                  onChange={this.updateCity}
-                />
-                <select
-                  placeholder={"Country"}
-                  className={"bp3-fill bp3-large"}
-                  onChange={this.updateCountry}
-                >
-                  {countries.map((x) =>
-                    x.code == location.country ? (
-                      <option selected value={x.code}>
-                        {x.value}
-                      </option>
-                    ) : (
-                      <option value={x.code}>{x.value}</option>
-                    )
-                  )}
-                </select>
-                <Button onClick={() => this.fetchByCity()}>Lookup</Button>
-              </ControlGroup>
-            </React.Fragment>
-          }
-        />
+        {/* SEARCH */}
+        {this.state.currentTab === "search"
+          ? this.renderSearchBar(current)
+          : null}
         {/* BODY */}
-        <Container
-          style={{
-            padding: "1em",
-            minWidth: "55vw",
-            maxHeight: "65vh",
-          }}
-        >
-          <div
-            className={"swirl"}
-            style={{ overflowY: "auto", background: colors.secondaryGrad }}
-          >
-            {details}
-            <ul>{listItems}</ul>
-          </div>
-        </Container>
+        {this.state.location.city !== "" || this.state.position ? (
+          <Container>
+            <div
+              className={"swirl"}
+              style={{ overflowY: "auto", background: colors.secondaryGrad }}
+            >
+              {details}
+              <ul style={{ listStyle: "none" }}>{listItems}</ul>
+            </div>
+          </Container>
+        ) : null}
       </React.Fragment>
     );
   }
 
-  // Panel Header
+  // Panel City Select Header
   renderHeader() {
     return (
-      <Row>
-        <Col>
-          <h3>{this.state.title}</h3>
-        </Col>
-      </Row>
+      <Nav
+        onSelect={async (eventKey, event) => {
+          console.log(event, eventKey);
+          if (eventKey === "search") {
+            this.setState({ currentTab: eventKey }, async () => {
+              await this.requestLocation();
+            });
+          } else {
+            this.setState(
+              { currentTab: eventKey.city || eventKey, location: eventKey },
+              async () => {
+                await this.fetchByCity();
+              }
+            );
+          }
+        }}
+        justified
+      >
+        {cities.map((city) => {
+          return (
+            <Nav.Item
+              eventKey={city}
+              active={this.state.currentTab === city.city}
+            >
+              <span class={"nav-option"}> {city.city}</span>
+            </Nav.Item>
+          );
+        })}
+        <Nav.Item eventKey="search" active={this.state.currentTab === "search"}>
+          <span class={"nav-option"}>Search</span>
+        </Nav.Item>
+      </Nav>
     );
   }
 
@@ -265,7 +307,15 @@ class WeatherForecast extends Component {
   renderBody() {
     return (
       <Container style={{ backgroundColor: colors.slateGray }}>
-        <Content style={{ padding: "1em" }}>
+        <Content
+          style={{
+            padding: "1em",
+            minWidth: "55vw",
+            maxHeight: "65vh",
+            width: "55vw",
+            padding: "1em",
+          }}
+        >
           {this.renderDashboardTabs()}
         </Content>
       </Container>
@@ -276,7 +326,6 @@ class WeatherForecast extends Component {
   render() {
     return (
       <Container style={{ background: colors.secondaryGrad }}>
-        <Header>{this.renderHeader()}</Header>
         <Content>
           <FlexboxGrid justify="center">
             <FlexboxGrid.Item colspan={24}>
@@ -284,7 +333,10 @@ class WeatherForecast extends Component {
                 className="App-splash"
                 style={{ backgroundColor: "transparent" }}
               >
-                <Panel bodyFill>{this.renderBody()}</Panel>
+                <Panel bodyFill>
+                  {this.renderHeader()}
+                  {this.renderBody()}
+                </Panel>
               </div>
             </FlexboxGrid.Item>
           </FlexboxGrid>
@@ -294,6 +346,4 @@ class WeatherForecast extends Component {
   }
 }
 
-export default collect(
-  withSplashScreen(WeatherForecast, "Loading Forecast...")
-);
+export default collect(WeatherForecast);
