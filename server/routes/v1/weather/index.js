@@ -33,9 +33,7 @@ module.exports = (() => {
   router.get("/:country/:city", async (req, res) => {
     try {
       const { country, city } = req.params;
-      // Lookup using Open Weather API
       const lookup = await lookupByCityCountry(city, country);
-      // Return Data
       let status = {
         status: 200,
         msg: lookup,
@@ -51,9 +49,7 @@ module.exports = (() => {
   router.get("/geo/:lat/:lng", async (req, res) => {
     try {
       const { lat, lng } = req.params;
-      // Lookup using Open Weather API
       const lookup = await lookupByLatLng(lat, lng);
-      // Return Data
       let status = {
         status: 200,
         msg: lookup,
@@ -65,13 +61,11 @@ module.exports = (() => {
     }
   });
 
-  // GET /:country/:city (default current forecast settings)
+  // GET /forecast/:country/:city (default current forecast settings)
   router.get("/forecast/:country/:city", async (req, res) => {
     try {
       const { country, city } = req.params;
-      // Lookup using Open Weather API
       const lookup = await lookupForecastByCityCountry(city, country);
-      // Return Data
       let status = {
         status: 200,
         msg: lookup,
@@ -116,8 +110,8 @@ module.exports = (() => {
 // Log Database Entry of Lookup
 async function storeLookup(lookupData) {
   try {
+    console.log(lookupData);
     const date = new Date();
-    await DB.sync();
     await Lookup.create({
       ...lookupData,
       createdAt: date,
@@ -141,7 +135,6 @@ async function lookupByCityCountry(city, country) {
   const { data } = await axios(url);
   return data;
 }
-
 // Lookup 5 Day Forecast Lat/Lng
 async function lookupForecastByLatLng(lat, lng) {
   await storeLookup({ lat, lng });

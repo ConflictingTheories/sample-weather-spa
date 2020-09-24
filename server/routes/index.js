@@ -26,6 +26,5 @@ module.exports = (() => {
   router.use("/index", function (_, res) {
     res.sendFile(path.join(__dirname, "../build/", "index.html"));
   });
-
   return router;
 })();

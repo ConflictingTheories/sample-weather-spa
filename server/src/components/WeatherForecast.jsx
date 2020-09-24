@@ -238,7 +238,10 @@ class WeatherForecast extends Component {
             maxHeight: "65vh",
           }}
         >
-          <div style={{ overflowY: "auto" }} className={"App-body"}>
+          <div
+            className={"swirl"}
+            style={{ overflowY: "auto", background: colors.secondaryGrad }}
+          >
             {details}
             <ul>{listItems}</ul>
           </div>
@@ -252,7 +255,7 @@ class WeatherForecast extends Component {
     return (
       <Row>
         <Col>
-          <h3>{this.state.header}</h3>
+          <h3>{this.state.title}</h3>
         </Col>
       </Row>
     );
@@ -272,11 +275,7 @@ class WeatherForecast extends Component {
   // Component
   render() {
     return (
-      <Container
-        style={{
-          background: colors.secondaryGrad,
-        }}
-      >
+      <Container style={{ background: colors.secondaryGrad }}>
         <Header>{this.renderHeader()}</Header>
         <Content>
           <FlexboxGrid justify="center">

@@ -50,17 +50,22 @@ app.use(
 
 // === API ROUTES
 app.use("/api/:ver", (req, res) => {
-  let apiVer = req.params.ver;
-  console.log(apiVer, req.params);
-  // Switch Versions
-  switch (apiVer) {
-    case "v1":
-      apiRouter = require("../routes/" + apiVer + "/index.js");
-      apiRouter(req, res);
-      break;
-    default:
-      Error.setError("Error: Invalid API Version", 400, {});
-      Error.sendError(res);
+  try {
+    let apiVer = req.params.ver;
+    console.log(apiVer, req.params);
+    // Switch Versions
+    switch (apiVer) {
+      case "v1":
+        apiRouter = require("../routes/" + apiVer + "/index.js");
+        apiRouter(req, res);
+        break;
+      default:
+        Error.setError("Error: Invalid API Version", 400, {});
+        Error.sendError(res);
+    }
+  } catch (err) {
+    Error.setError("Error: Server Error", 500, {});
+    Error.sendError(res);
   }
 });
 
