@@ -290,7 +290,7 @@ class WeatherForecast extends Component {
               </Panel>
             ) : (
               // Loaded
-              <Panel style={{ background: "white" }} bordered>
+              <Panel className={"frosted"} bordered>
                 <h5>Today</h5>
                 <div>
                   {this.renderIcon(current.weather[0].icon)}
@@ -341,7 +341,8 @@ class WeatherForecast extends Component {
                 return (
                   <Col md={6} lg={6} sm={6}>
                     <Panel
-                      style={{ textAlign: "center", background: "white" }}
+                      className={"frosted"}
+                      style={{ textAlign: "center" }}
                       bordered
                     >
                       <h5>{days[dayOfWeek]}</h5>
