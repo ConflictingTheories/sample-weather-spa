@@ -12,13 +12,11 @@
 \*                                            */
 
 import React, { Component } from "react";
-import { collect, store, batch } from "react-recollect";
-import withSplashScreen from "./utils/splashScreen";
+import { collect, store } from "react-recollect";
 
 // RSuite UI Library
 import {
   Container,
-  Icon,
   Panel,
   Content,
   Row,
@@ -26,7 +24,6 @@ import {
   Notification,
   Placeholder,
   FlexboxGrid,
-  Header,
   Nav,
 } from "rsuite";
 
@@ -34,7 +31,6 @@ import {
 import {
   Button,
   ControlGroup,
-  Elevation,
   InputGroup,
   Intent,
   Callout,
@@ -43,18 +39,17 @@ import {
 // List of Countries
 import cities from "../assets/json/cities.json";
 import countries from "../assets/json/countries.json";
-import weatherTypes from "../assets/json/weatherTypes.json";
 
 // Weather Service
 import {
-  getForecastByLatLng,
   getDailyForecastByLatLng,
-  getForecast,
   getDailyForecast,
   kelvinToCelsius,
-  kelvinToFarenheit,
 } from "../services/weather";
 import colors from "../styles/colors";
+import withSplashScreen from "./utils/splashScreen";
+
+const days = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
 
 const { Paragraph } = Placeholder;
 
@@ -66,20 +61,19 @@ class WeatherForecast extends Component {
     this.fetchByCity = this.fetchByCity.bind(this);
     this.updateCity = this.updateCity.bind(this);
     this.updateCountry = this.updateCountry.bind(this);
-    this.renderDashboardTabs = this.renderPanel.bind(this);
     this.requestLocation = this.requestLocation.bind(this);
-    this.genForecast = this.renderForecast.bind(this);
-    this.renderBody = this.renderPanelBody.bind(this);
-    this.renderHeader = this.renderPanelHeader.bind(this);
+    this.renderForecast = this.renderForecast.bind(this);
+    this.renderPanelBody = this.renderPanelBody.bind(this);
     this.renderSearchBar = this.renderSearchBar.bind(this);
-    this.renderHeader = this.renderPanelHeader.bind(this);
+    this.renderPanelHeader = this.renderPanelHeader.bind(this);
 
     // State
     this.state = {
-      currentTab: "search",
+      loading: true,
+      currentTab: "Calgary",
       position: store.position || null,
       location: store.location || {
-        city: "",
+        city: "Calgary",
         country: "CA",
       },
       forecast: store.forecast || null,
@@ -91,7 +85,8 @@ class WeatherForecast extends Component {
 
   async componentDidMount() {
     // Fetch Location on Load (if Permission Given)
-    await this.requestLocation();
+    // await this.requestLocation();
+    await this.fetchByCity();
     // Provide "Notification"
     setTimeout(
       () =>
@@ -105,6 +100,7 @@ class WeatherForecast extends Component {
 
   // Request Location from Browser
   async requestLocation() {
+    this.setState({ loading: true });
     const _that = this;
     if (navigator.geolocation) {
       navigator.geolocation.getCurrentPosition(
@@ -115,7 +111,12 @@ class WeatherForecast extends Component {
               position.coords.longitude
             );
             _that.setState(
-              { position, forecast: result.forecast, current: result.current },
+              {
+                position,
+                forecast: result.forecast,
+                current: result.current,
+                loading: false,
+              },
               () => {
                 store.position = position;
                 store.current = result.current;
@@ -133,11 +134,12 @@ class WeatherForecast extends Component {
 
   // Fetch by City Lookup
   async fetchByCity() {
+    this.setState({ loading: true });
     const { location } = this.state;
     if (location) {
       const result = await getDailyForecast(location.country, location.city);
       this.setState(
-        { forecast: result.forecast, current: result.current },
+        { forecast: result.forecast, current: result.current, loading: false },
         () => {
           store.current = result.current;
           store.forecast = result.forecast;
@@ -253,68 +255,99 @@ class WeatherForecast extends Component {
 
   // Generate Details for Display
   renderForecast(forecast, current) {
+    let today = new Date(current.dt * 1000);
+    let output = forecast.list
+      .map((t) => {
+        let temp = kelvinToCelsius(t.main.temp);
+        let min = kelvinToCelsius(t.main.temp_min);
+        let max = kelvinToCelsius(t.main.temp_max);
+        let icon = t.weather[0].icon;
+        let date = new Date(t.dt * 1000);
+        let isNoon = t.dt_txt.match(/12:00:00/i);
+        let index = date.getUTCDate() - today.getUTCDate();
+        if (!!isNoon && index > 0) {
+          console.log(isNoon, index);
+          return { min, max, temp, date, icon };
+        } else return null;
+      })
+      .filter((x) => x);
+    console.log(output);
     return (
       <div className={"details"}>
         {/* Today  */}
         <Row>
           <Col md={24} lg={24} sm={24}>
-            <Callout intent={Intent.SUCCESS}>
-              <p>
-                <strong>{forecast.name}</strong>
-              </p>
-              <p>
-                Temperature: {kelvinToCelsius(current.main.temp).toFixed(2)} C
-              </p>
-              <p>Min: {kelvinToCelsius(current.main.temp_min).toFixed(2)} C</p>
-              <p>Max: {kelvinToCelsius(current.main.temp_max).toFixed(2)} C</p>
-              <p>Weather: {current.weather[0].description}</p>
-            </Callout>
-            <div>
-              {this.renderIcon(current.weather[0].icon)}
-              <h5>{current.weather[0].description}</h5>
-            </div>
+            <Panel bordered intent={Intent.SUCCESS}>
+              <h5>Today</h5>
+              {this.state.loading ? (
+                <Placeholder.Paragraph />
+              ) : (
+                <div>
+                  {this.renderIcon(current.weather[0].icon)}
+                  <h3
+                    style={{
+                      position: "relative",
+                      height: "100%",
+                      width: "100%",
+                      display: "inline",
+                    }}
+                  >
+                    <div style={{ float: "right" }}>
+                      {this.state.location.city +
+                        ", " +
+                        this.state.location.country}
+                      <br />
+                      {(" " + current.weather[0].description)
+                        .toLowerCase()
+                        .replace(/\b./g, function (match, chr) {
+                          return ("" + match).toUpperCase();
+                        })}
+                    </div>
+                    {kelvinToCelsius(current.main.temp).toFixed(1) + "°C"}
+                  </h3>
+                </div>
+              )}
+            </Panel>
           </Col>
         </Row>
         {/* Four Days Out */}
         <Row>
-          <Col md={6} lg={6} sm={6}>
-            <div>
-              {this.renderIcon(current.weather[0].icon)}
-              <h5>{current.weather[0].description}</h5>
-            </div>
-          </Col>
-          <Col md={6} lg={6} sm={6}>
-            <div>
-              {this.renderIcon(current.weather[0].icon)}
-              <h5>{current.weather[0].description}</h5>
-            </div>
-          </Col>
-          <Col md={6} lg={6} sm={6}>
-            <div>
-              {this.renderIcon(current.weather[0].icon)}
-              <h5>{current.weather[0].description}</h5>
-            </div>
-          </Col>
-          <Col md={6} lg={6} sm={6}>
-            <div>
-              {this.renderIcon(current.weather[0].icon)}
-              <h5>{current.weather[0].description}</h5>
-            </div>
-          </Col>
+          {output.slice(0, 4).map((day, index) => {
+            let dayOfWeek = (today.getDay() + index + 1) % 7;
+            return (
+              <Col md={6} lg={6} sm={6}>
+                <Panel style={{ textAlign: "center" }} bordered>
+                  <h5>{days[dayOfWeek]}</h5>
+                  <div>
+                    {this.renderIcon(day.icon)}
+                    <h3
+                      style={{
+                        position: "relative",
+                        height: "100%",
+                        width: "100%",
+                        display: "inline",
+                      }}
+                    >
+                      {day.temp.toFixed(1) + "°C"}
+                    </h3>
+                  </div>
+                </Panel>
+              </Col>
+            );
+          })}
         </Row>
       </div>
     );
   }
 
   // Render Search Bar
-  renderSearchBar(forecast) {
+  renderSearchBar() {
     const { location } = this.state;
     return (
       <Callout
         title={
           <React.Fragment>
-            Chaos Weather Loaded ✓ ::
-            {forecast ? `Lookup For: ${forecast.name}` : "Enter Search"},
+            Enter Search
             <br />
             <hr />
             <ControlGroup fill>
@@ -346,31 +379,11 @@ class WeatherForecast extends Component {
     );
   }
 
-  // Forecast
-  renderPanel() {
-    const { forecast, current } = this.state;
-    return (
-      <React.Fragment>
-        {/* SEARCH */}
-        {this.state.currentTab === "search"
-          ? this.renderSearchBar(current)
-          : null}
-        {/* BODY */}
-        {this.state.location.city !== "" || this.state.position ? (
-          <Container>
-            <div style={{ overflowY: "auto" }}>
-              {this.renderForecast(forecast, current)}
-            </div>
-          </Container>
-        ) : null}
-      </React.Fragment>
-    );
-  }
-
   // Panel City Select Header
   renderPanelHeader() {
     return (
       <Nav
+        subtle
         onSelect={async (eventKey, event) => {
           console.log(event, eventKey);
           if (eventKey === "search") {
@@ -407,6 +420,7 @@ class WeatherForecast extends Component {
 
   // Panel Body
   renderPanelBody() {
+    const { forecast, current } = this.state;
     return (
       <Container>
         <Content
@@ -418,7 +432,16 @@ class WeatherForecast extends Component {
             padding: "1em",
           }}
         >
-          {this.renderPanel()}
+          {/* SEARCH */}
+          {this.state.currentTab === "search"
+            ? this.renderSearchBar(current)
+            : null}
+          {/* BODY */}
+          {this.state.location.city !== "" && forecast ? (
+            <Container>{this.renderForecast(forecast, current)}</Container>
+          ) : (
+            withSplashScreen(<div></div>, "Loading...")
+          )}
         </Content>
       </Container>
     );
