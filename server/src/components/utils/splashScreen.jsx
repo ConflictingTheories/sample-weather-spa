@@ -15,13 +15,13 @@ import React from "react";
 
 // ASSETS & APP STYLES
 import logo from "../../assets/logo.svg";
-import "../../styles/App.less";
+import "../../styles/less/App.less";
 
 // Splash Screen
 function SplashScreen(loadingMessage) {
   return (
     <div className="App">
-      <header className="App-splash">
+      <header className="App-splash swirl">
         <img src={logo} className="App-logo" alt="logo" />
         <p>{loadingMessage}</p>
       </header>

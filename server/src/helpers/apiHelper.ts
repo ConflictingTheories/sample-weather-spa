@@ -1,15 +1,16 @@
-/*
- * ---------------------------- *
- *                              *
- * 2020 (c) Kyle Derby MacInnis *
- *                              *
- * ---------------------------- *
- */
+/*                                            *\
+** ------------------------------------------ **
+**           Sample - Weather SPA    	      **
+** ------------------------------------------ **
+**  Copyright (c) 2020 - Kyle Derby MacInnis  **
+**                                            **
+** Any unauthorized distribution or transfer  **
+**    of this work is strictly prohibited.    **
+**                                            **
+**           All Rights Reserved.             **
+** ------------------------------------------ **
+\*                                            */
 
-// Import HTTP Classes
-// ...
-//
-import Authenticator from "./authHelper";
 import Env from "../config/runtime.json";
 var location: Location;
 
@@ -19,14 +20,14 @@ class ApiHelper {
   static port: number = parseInt(Env.apiPort || "8081");
   static ver: string = Env.apiVer || "v1";
 
+  // GET Request
   static get = async (path: string, queryObj: any = {}) => {
     const requestOptions = {
       method: "GET",
-      headers: Authenticator.authHeader(),
     };
     let query =
       Object.keys(queryObj)
-        .map((x) => "" + x + "=" + URLEncode(queryObj[x]))
+        .map((x) => "" + x + "=" + queryObj[x])
         .join("&") || "";
     return fetch(
       `${ApiHelper.host}:${ApiHelper.port}/api/${ApiHelper.ver}${path}?${query}`,
@@ -34,12 +35,12 @@ class ApiHelper {
     ).then(handleResponse);
   };
 
+  // POST Request
   static post = async (path: string, bodyObj: any = {}) => {
     const requestOptions = {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
-        ...Authenticator.authHeader(),
       },
       body: JSON.stringify(bodyObj),
     };
@@ -59,25 +60,13 @@ class ApiHelper {
 async function handleResponse(response: Response) {
   return response.text().then(async (text) => {
     const data = text && JSON.parse(text);
+    // Check for Errors or Future Auth (if appl.)
     if (!response.ok) {
       const error = (data && data.message) || response.statusText;
       return Promise.reject(error);
     }
     return data;
   });
-}
-
-export function previewFile(file: File, callback: any) {
-  const reader = new FileReader();
-  reader.onloadend = () => {
-    callback(reader.result);
-  };
-  reader.readAsDataURL(file);
-}
-
-export function URLEncode(str: string) {
-  // TODO
-  return str;
 }
 
 export default ApiHelper;

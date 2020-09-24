@@ -13,7 +13,7 @@
 
 import React from "react";
 
-import { BrowserRouter as Router, Route, Switch } from "./components/utils/node_modules/react-router-dom";
+import { BrowserRouter as Router, Route, Switch } from "react-router-dom";
 
 // External Style Frameworks (RSuite / BlueprintJS)
 import "rsuite/dist/styles/rsuite-default.css";

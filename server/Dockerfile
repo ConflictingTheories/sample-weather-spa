@@ -11,15 +11,10 @@
 # ** ------------------------------------------ **
 # \*                                            */
 
-FROM ubuntu
+FROM node
 LABEL Author "Kyle Derby MacInnis"
 ENV DEBIAN_FRONTEND=noninteractive
 ENV TZ=America/Edmonton
-# Yarn & NodeJS
-RUN apt-get update -y && apt-get install -y curl nodejs git gnupg dos2unix
-RUN curl -sS https://dl.yarnpkg.com/debian/pubkey.gpg | apt-key add -
-RUN echo "deb https://dl.yarnpkg.com/debian/ stable main" | tee /etc/apt/sources.list.d/yarn.list
-RUN apt-get update -y && apt-get install -y yarn
 # App Env Variables
 ENV API_HOST=${API_HOST}
 ENV API_VERSION=${API_VERSION}

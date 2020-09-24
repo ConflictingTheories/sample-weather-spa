@@ -12,7 +12,7 @@
 \*                                            */
 
 import React from "react";
-import { collect } from "react-recollect";
+import { collect, store, batch } from "react-recollect";
 
 // RSuite UI Library
 import {
@@ -22,15 +22,11 @@ import {
   Col,
   Notification,
   Placeholder,
-  Steps,
 } from "rsuite";
 
 // BLUEPRINT STYLES
 import {
   Button,
-  Tabs,
-  Tab,
-  NonIdealState,
   ControlGroup,
   InputGroup,
   Intent,
@@ -42,13 +38,11 @@ import {
   getForecast,
   kelvinToCelsius,
   kelvinToFarenheit,
-} from "../../services/weather";
+} from "../services/weather";
 
 // List of Countries
-import countries from "../../assets/countries.json";
-import weatherTypes from "../../assets/weatherTypes.json";
-
-const ICON_API = "https://openweathermap.org/img/wn/";
+import countries from "../assets/json/countries.json";
+import weatherTypes from "../assets/json/weatherTypes.json";
 
 const { Paragraph } = Placeholder;
 
@@ -62,17 +56,15 @@ class Dashboard extends React.Component {
     this.renderDashboardTabs = this.renderDashboardTabs.bind(this);
     this.requestLocation = this.requestLocation.bind(this);
     this.genForecast = this.genForecast.bind(this);
-    // Store
-    this.store = props.store;
     // State
     this.state = {
       currentStep: 0,
-      position: this.store.position || null,
-      location: this.store.location || {
+      position: store.position || null,
+      location: store.location || {
         city: "",
         country: "CA",
       },
-      forecast: this.store.forecast || null,
+      forecast: store.forecast || null,
     };
   }
 
@@ -82,15 +74,14 @@ class Dashboard extends React.Component {
     if (navigator.geolocation) {
       navigator.geolocation.getCurrentPosition(
         async (position) => {
-          console.log(position);
           if (position && position.coords) {
             const result = await getForecastByLatLng(
               position.coords.latitude,
               position.coords.longitude
             );
             _that.setState({ position, forecast: result.forecast }, () => {
-              _that.store.position = position;
-              _that.store.forecast = result.forecast;
+              store.position = position;
+              store.forecast = result.forecast;
             });
           }
         },
@@ -107,7 +98,7 @@ class Dashboard extends React.Component {
     if (location) {
       const result = await getForecast(location.country, location.city);
       this.setState({ forecast: result.forecast, currentStep: 1 }, () => {
-        this.store.forecast = result.forecast;
+        store.forecast = result.forecast;
       });
     }
   }
@@ -117,7 +108,7 @@ class Dashboard extends React.Component {
     const { location } = this.state;
     location.city = x.target.value;
     this.setState({ location }, () => {
-      this.store.location = location;
+      store.location = location;
     });
   }
 
@@ -126,13 +117,14 @@ class Dashboard extends React.Component {
     const { location } = this.state;
     location.country = x.target.value;
     this.setState({ location }, () => {
-      this.store.location = location;
+      store.location = location;
     });
   }
 
   // Render Weather Icon
   renderIcon(iconCode) {
-    return <img src={`${ICON_API}/${iconCode}@2x.png`} />;
+    // return <img src={`${ICON_API}/${iconCode}@2x.png`} />;
+    return <img src={require(`../assets/icons/${iconCode}.png`)} />;
   }
 
   // Search Location if available
@@ -182,7 +174,7 @@ class Dashboard extends React.Component {
           forecast.weather[0].icon == type[1].code) ? (
         // Active
         <li className={"active"}>
-          {this.renderIcon(type[0].code)}
+          {this.renderIcon(forecast.weather[0].icon)}
           <h5>{forecast.weather[0].description || type[0].desc}</h5>
           {this.genForecast(forecast, details)}
         </li>

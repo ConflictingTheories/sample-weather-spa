@@ -22,27 +22,19 @@ const Error = require("../../../lib/Error");
 
 // Open Weather API
 const WEATHER_ENDPOINT = "https://api.openweathermap.org/data/2.5/weather";
+const FORECAST_ENDPOINT = "https://api.openweathermap.org/data/2.5/forecast";
 const API_KEY = process.env.WEATHER_API_KEY;
 
-module.exports = () => {
-  // Models
-  const Lookup = require("../../../models/Lookup");
+// Models
+const Lookup = require("../../../models/Lookup");
 
-  // GET /:country/:city (default forecast settings)
+module.exports = (() => {
+  // GET /:country/:city (default current forecast settings)
   router.get("/:country/:city", async (req, res) => {
     try {
       const { country, city } = req.params;
       // Lookup using Open Weather API
       const lookup = await lookupByCityCountry(city, country);
-      const date = new Date();
-      // Post to DB Log
-      await DB.sync();
-      await Lookup.create({
-        country,
-        city,
-        createdAt: date,
-        updatedAt: date,
-      });
       // Return Data
       let status = {
         status: 200,
@@ -55,12 +47,48 @@ module.exports = () => {
     }
   });
 
-  // GET /geo/:lat/:lng (default forecast settings)
+  // GET /geo/:lat/:lng (default current forecast settings)
   router.get("/geo/:lat/:lng", async (req, res) => {
     try {
       const { lat, lng } = req.params;
       // Lookup using Open Weather API
       const lookup = await lookupByLatLng(lat, lng);
+      // Return Data
+      let status = {
+        status: 200,
+        msg: lookup,
+      };
+      res.json(status);
+    } catch (e) {
+      Error.setError("Error", 500, e);
+      Error.sendError(res);
+    }
+  });
+
+  // GET /:country/:city (default current forecast settings)
+  router.get("/forecast/:country/:city", async (req, res) => {
+    try {
+      const { country, city } = req.params;
+      // Lookup using Open Weather API
+      const lookup = await lookupForecastByCityCountry(city, country);
+      // Return Data
+      let status = {
+        status: 200,
+        msg: lookup,
+      };
+      res.json(status);
+    } catch (e) {
+      Error.setError("Error", 500, e);
+      Error.sendError(res);
+    }
+  });
+
+  // GET /forecast/geo/:lat/:lng (default current forecast settings)
+  router.get("/forecast/geo/:lat/:lng", async (req, res) => {
+    try {
+      const { lat, lng } = req.params;
+      // Lookup using Open Weather API
+      const lookup = await lookupForecastByLatLng(lat, lng);
       const date = new Date();
       // Post to DB Log
       await DB.sync();
@@ -83,17 +111,48 @@ module.exports = () => {
   });
 
   return router;
-};
+})();
 
-// Lookup Lat/Lng
+// Log Database Entry of Lookup
+async function storeLookup(lookupData) {
+  try {
+    const date = new Date();
+    await DB.sync();
+    await Lookup.create({
+      ...lookupData,
+      createdAt: date,
+      updatedAt: date,
+    });
+  } catch (err) {
+    console.error(err);
+  }
+}
+// Lookup Current Weather - Lat/Lng
 async function lookupByLatLng(lat, lng) {
+  await storeLookup({ lat, lng });
   const url = `${WEATHER_ENDPOINT}?lat=${lat}&lon=${lng}&appid=${API_KEY}`;
   const { data } = await axios(url);
   return data;
 }
-// Lookup City/County
+// Lookup Current Weather - City/County
 async function lookupByCityCountry(city, country) {
+  await storeLookup({ city, country });
   const url = `${WEATHER_ENDPOINT}?q=${city},${country}&appid=${API_KEY}`;
+  const { data } = await axios(url);
+  return data;
+}
+
+// Lookup 5 Day Forecast Lat/Lng
+async function lookupForecastByLatLng(lat, lng) {
+  await storeLookup({ lat, lng });
+  const url = `${FORECAST_ENDPOINT}?lat=${lat}&lon=${lng}&appid=${API_KEY}`;
+  const { data } = await axios(url);
+  return data;
+}
+// Lookup 5 Day City/County
+async function lookupForecastByCityCountry(city, country) {
+  await storeLookup({ city, country });
+  const url = `${FORECAST_ENDPOINT}?q=${city},${country}&appid=${API_KEY}`;
   const { data } = await axios(url);
   return data;
 }
