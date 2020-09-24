@@ -3,9 +3,15 @@
 // Colours
 @primaryColor: #5bbfba;
 @secondaryColor: #5f6caf;
+@sunOrange: hsl(35, 95%, 60);
+@blueSky: hsl(200, 95%, 60);
+@rain: hsl(240, 95%, 60);
+@cloudyGray: hsl(35, 5%, 60);
+@stormPurple: hsl(250, 45%, 30);
+@nightSky: hsl(240, 45%, 20);
 @dark: #222;
 @textColor: #111;
-@linkColor: #61dafb;
+@linkColor: hsl(199, 82%, 42%);
 
 // Mid Tones
 @green: #a4d4ae;
@@ -18,6 +24,15 @@
 @lightGray: #aaa;
 @slateGray: #30404d;
 
+@white: #fff;
+@black: #000;
+
 // Gradients
 @primaryGrad: linear-gradient(45deg, @primaryColor, @secondaryColor);
-@secondaryGrad: linear-gradient(45deg, @secondaryColor, black);
+@secondaryGrad: linear-gradient(45deg, @secondaryColor, @black);
+
+// Weather Backgrounds
+// Day
+@clearDay: linear-gradient(45deg, @blueSky, @yellow);
+// Night
+@clearNight: linear-gradient(45deg, @dark, @nightSky);

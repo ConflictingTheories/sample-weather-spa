@@ -34,6 +34,7 @@ import {
 import {
   Button,
   ControlGroup,
+  Elevation,
   InputGroup,
   Intent,
   Callout,
@@ -65,13 +66,13 @@ class WeatherForecast extends Component {
     this.fetchByCity = this.fetchByCity.bind(this);
     this.updateCity = this.updateCity.bind(this);
     this.updateCountry = this.updateCountry.bind(this);
-    this.renderDashboardTabs = this.renderDashboardTabs.bind(this);
+    this.renderDashboardTabs = this.renderPanel.bind(this);
     this.requestLocation = this.requestLocation.bind(this);
-    this.genForecast = this.genForecast.bind(this);
-    this.renderBody = this.renderBody.bind(this);
-    this.renderHeader = this.renderHeader.bind(this);
+    this.genForecast = this.renderForecast.bind(this);
+    this.renderBody = this.renderPanelBody.bind(this);
+    this.renderHeader = this.renderPanelHeader.bind(this);
     this.renderSearchBar = this.renderSearchBar.bind(this);
-    this.renderHeader = this.renderHeader.bind(this);
+    this.renderHeader = this.renderPanelHeader.bind(this);
 
     // State
     this.state = {
@@ -83,8 +84,8 @@ class WeatherForecast extends Component {
       },
       forecast: store.forecast || null,
       current: store.current || null,
-      renderHeader: props.renderHeader || this.renderHeader,
-      renderBody: props.renderBody || this.renderBody,
+      renderHeader: props.renderHeader || this.renderPanelHeader,
+      renderBody: props.renderBody || this.renderPanelBody,
     };
   }
 
@@ -163,24 +164,144 @@ class WeatherForecast extends Component {
     });
   }
 
+  // Return Appropriate Class for Styling Background
+  weatherClass() {
+    let date = new Date();
+    if (date.getHours() > 18 || date.getHours() < 6) return "clearNight swirl";
+    else return "clearDay swirl";
+  }
+
+  // Render Fog
+  renderFog(current) {
+    if (current && current.weather && current.weather[0]) {
+      switch (current.weather[0].icon) {
+        // Clear
+        case "01n":
+        case "02n":
+        case "02d":
+        case "01d":
+          return null;
+        // Cloudy
+        case "03n":
+        case "04n":
+        case "03d":
+        case "04d":
+          return (
+            <React.Fragment>
+              <div className={"foglayer"}>
+                <div className={"image"} />
+              </div>
+              <div className={"foglayer"}>
+                <div className={"image"} />
+              </div>
+            </React.Fragment>
+          );
+        // Stormy
+        case "09n":
+        case "10n":
+        case "11n":
+        case "09d":
+        case "10d":
+        case "11d":
+          return (
+            <React.Fragment>
+              <div className={"foglayer"}>
+                <div className={"image"} />
+              </div>
+              <div className={"foglayer"}>
+                <div className={"image"} />
+              </div>
+              <div className={"foglayer"}>
+                <div className={"image"} />
+              </div>
+            </React.Fragment>
+          );
+
+        // Smoke / Snow
+        case "50d":
+        case "13d":
+        case "50n":
+        case "13n":
+          return (
+            <React.Fragment>
+              <div className={"foglayer"}>
+                <div className={"image"} />
+              </div>
+              <div className={"foglayer"}>
+                <div className={"image"} />
+              </div>
+              <div className={"foglayer"}>
+                <div className={"image"} />
+              </div>
+              <div className={"foglayer"}>
+                <div className={"image"} />
+              </div>
+            </React.Fragment>
+          );
+        default:
+          return null;
+      }
+    } else {
+      return null;
+    }
+  }
+
   // Render Weather Icon
   renderIcon(iconCode) {
     return <img src={require(`../assets/icons/${iconCode}.png`)} />;
   }
 
   // Generate Details for Display
-  genForecast(forecast, details) {
-    details.push(
+  renderForecast(forecast, current) {
+    return (
       <div className={"details"}>
-        <Callout intent={Intent.SUCCESS}>
-          <p>
-            <strong>{forecast.name}</strong>
-          </p>
-          <p>Temperature: {kelvinToCelsius(forecast.main.temp).toFixed(2)} C</p>
-          <p>Min: {kelvinToCelsius(forecast.main.temp_min).toFixed(2)} C</p>
-          <p>Max: {kelvinToCelsius(forecast.main.temp_max).toFixed(2)} C</p>
-          <p>Weather: {forecast.weather[0].description}</p>
-        </Callout>
+        {/* Today  */}
+        <Row>
+          <Col md={24} lg={24} sm={24}>
+            <Callout intent={Intent.SUCCESS}>
+              <p>
+                <strong>{forecast.name}</strong>
+              </p>
+              <p>
+                Temperature: {kelvinToCelsius(current.main.temp).toFixed(2)} C
+              </p>
+              <p>Min: {kelvinToCelsius(current.main.temp_min).toFixed(2)} C</p>
+              <p>Max: {kelvinToCelsius(current.main.temp_max).toFixed(2)} C</p>
+              <p>Weather: {current.weather[0].description}</p>
+            </Callout>
+            <div>
+              {this.renderIcon(current.weather[0].icon)}
+              <h5>{current.weather[0].description}</h5>
+            </div>
+          </Col>
+        </Row>
+        {/* Four Days Out */}
+        <Row>
+          <Col md={6} lg={6} sm={6}>
+            <div>
+              {this.renderIcon(current.weather[0].icon)}
+              <h5>{current.weather[0].description}</h5>
+            </div>
+          </Col>
+          <Col md={6} lg={6} sm={6}>
+            <div>
+              {this.renderIcon(current.weather[0].icon)}
+              <h5>{current.weather[0].description}</h5>
+            </div>
+          </Col>
+          <Col md={6} lg={6} sm={6}>
+            <div>
+              {this.renderIcon(current.weather[0].icon)}
+              <h5>{current.weather[0].description}</h5>
+            </div>
+          </Col>
+          <Col md={6} lg={6} sm={6}>
+            <div>
+              {this.renderIcon(current.weather[0].icon)}
+              <h5>{current.weather[0].description}</h5>
+            </div>
+          </Col>
+        </Row>
       </div>
     );
   }
@@ -224,25 +345,10 @@ class WeatherForecast extends Component {
       />
     );
   }
-  // Forecast Tabs
-  renderDashboardTabs() {
-    const { forecast, current } = this.state;
-    const details = [];
-    const listItems = weatherTypes.map((type) => {
-      return current &&
-        current.weather &&
-        current.weather[0] &&
-        (current.weather[0].icon == type[0].code ||
-          current.weather[0].icon == type[1].code) ? (
-        // Active
-        <li className={"active"}>
-          {this.renderIcon(current.weather[0].icon)}
-          <h5>{current.weather[0].description || type[0].desc}</h5>
-          {this.genForecast(current, details)}
-        </li>
-      ) : null;
-    });
 
+  // Forecast
+  renderPanel() {
+    const { forecast, current } = this.state;
     return (
       <React.Fragment>
         {/* SEARCH */}
@@ -252,12 +358,8 @@ class WeatherForecast extends Component {
         {/* BODY */}
         {this.state.location.city !== "" || this.state.position ? (
           <Container>
-            <div
-              className={"swirl"}
-              style={{ overflowY: "auto", background: colors.secondaryGrad }}
-            >
-              {details}
-              <ul style={{ listStyle: "none" }}>{listItems}</ul>
+            <div style={{ overflowY: "auto" }}>
+              {this.renderForecast(forecast, current)}
             </div>
           </Container>
         ) : null}
@@ -266,7 +368,7 @@ class WeatherForecast extends Component {
   }
 
   // Panel City Select Header
-  renderHeader() {
+  renderPanelHeader() {
     return (
       <Nav
         onSelect={async (eventKey, event) => {
@@ -304,9 +406,9 @@ class WeatherForecast extends Component {
   }
 
   // Panel Body
-  renderBody() {
+  renderPanelBody() {
     return (
-      <Container style={{ backgroundColor: colors.slateGray }}>
+      <Container>
         <Content
           style={{
             padding: "1em",
@@ -316,7 +418,7 @@ class WeatherForecast extends Component {
             padding: "1em",
           }}
         >
-          {this.renderDashboardTabs()}
+          {this.renderPanel()}
         </Content>
       </Container>
     );
@@ -324,18 +426,34 @@ class WeatherForecast extends Component {
 
   // Component
   render() {
+    const { current } = this.state;
     return (
-      <Container style={{ background: colors.secondaryGrad }}>
+      <Container>
         <Content>
+          <div
+            style={{ position: "fixed", height: "100%", width: "100%" }}
+            className={this.weatherClass(current)}
+          ></div>
           <FlexboxGrid justify="center">
             <FlexboxGrid.Item colspan={24}>
               <div
-                className="App-splash"
-                style={{ backgroundColor: "transparent" }}
+                className={"App-splash"}
+                style={{ background: "transparent" }}
               >
-                <Panel bodyFill>
-                  {this.renderHeader()}
-                  {this.renderBody()}
+                {/* Fog Effect - for certain weather patterns */}
+                {this.renderFog(current)}
+                <Panel>
+                  {/* City Nav */}
+                  {this.renderPanelHeader()}
+                  <Panel
+                    shaded
+                    bordered
+                    bodyFill
+                    style={{ background: "snow", opacity: 0.9 }}
+                  >
+                    {/* Forecast */}
+                    {this.renderPanelBody()}
+                  </Panel>
                 </Panel>
               </div>
             </FlexboxGrid.Item>
