@@ -1,4 +1,4 @@
-# Sample Weather SPA (React)
+# Sample Weather SPA (React) aka Chaos Weather
 This is a sample weather app. Showcasing some React experience. This was done for a job application.
 
 ## Dependencies (to deploy)

@@ -1,0 +1,6 @@
+{
+    "apiUrl":"http://localhost:8089",
+    "apiHost":"http://localhost",
+    "apiPort":"8089",
+    "apiVer":"v1"    
+}

@@ -11,79 +11,62 @@
 ** ------------------------------------------ **
 \*                                            */
 
-// Import HTTP Classes
-// ...
-//
-import Authenticator from './authHelper';
-import {logout} from '../services/auth';
-
-var location : Location;
+import Env from "../config/runtime.json";
+var location: Location;
 
 // API Helper Class
 class ApiHelper {
+  static host: string = Env.apiHost || "http://localhost";
+  static port: number = parseInt(Env.apiPort || "8081");
+  static ver: string = Env.apiVer || "v1";
 
-    static host: string = process.env.API_HOST || "http://localhost"
-    static port: number = parseInt(process.env.APP_PORT || "8081")
-    static ver: string = process.env.API_VERSION || "v1"
-
-    static get = async (path: string, queryObj: any = {}) => {
-        const requestOptions = {
-            method: 'GET',
-            headers: Authenticator.authHeader()
-        };
-        let query = Object.keys(queryObj).map((x) => '' + x + '=' + URLEncode(queryObj[x])).join('&') || '';
-        return fetch(`${ApiHelper.host}:${ApiHelper.port}/api/${ApiHelper.ver}${path}?${query}`, requestOptions).then(handleResponse);
-    }
-
-    static post = async (path: string, bodyObj: any = {}) => {
-        const requestOptions = {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json', ...Authenticator.authHeader() },
-            body: JSON.stringify(bodyObj)
-        };
-        return fetch(`${ApiHelper.host}:${ApiHelper.port}/api/${ApiHelper.ver}${path}`, requestOptions).then(handleResponse);
-    }
-
-    // put
-
-    // delete
-
-    // head
-}
-
-
-async function handleResponse(response:Response) {
-    return response.text().then(async text => {
-        if (response.status === 401) {
-            // auto logout if 401 response returned from api
-            if(location && (location.pathname === "/login" || location.pathname === "/logout")){
-                await logout();
-            }else{
-                await logout();
-                location && location.reload(true);
-            }
-        }else{
-            const data = text && JSON.parse(text);
-            if (!response.ok) {
-                const error = (data && data.message) || response.statusText;
-                return Promise.reject(error);
-            }
-            return data;
-        }
-    });
-}
-
-export function previewFile(file:File, callback:any) {
-    const reader = new FileReader();
-    reader.onloadend = () => {
-      callback(reader.result);
+  // GET Request
+  static get = async (path: string, queryObj: any = {}) => {
+    const requestOptions = {
+      method: "GET",
     };
-    reader.readAsDataURL(file);
-  }
+    let query =
+      Object.keys(queryObj)
+        .map((x) => "" + x + "=" + queryObj[x])
+        .join("&") || "";
+    return fetch(
+      `${ApiHelper.host}:${ApiHelper.port}/api/${ApiHelper.ver}${path}?${query}`,
+      requestOptions
+    ).then(handleResponse);
+  };
 
-export function URLEncode(str: string) {
-    // TODO
-    return str;
+  // POST Request
+  static post = async (path: string, bodyObj: any = {}) => {
+    const requestOptions = {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(bodyObj),
+    };
+    return fetch(
+      `${ApiHelper.host}:${ApiHelper.port}/api/${ApiHelper.ver}${path}`,
+      requestOptions
+    ).then(handleResponse);
+  };
+
+  // put
+
+  // delete
+
+  // head
 }
 
-export default ApiHelper
+async function handleResponse(response: Response) {
+  return response.text().then(async (text) => {
+    const data = text && JSON.parse(text);
+    // Check for Errors or Future Auth (if appl.)
+    if (!response.ok) {
+      const error = (data && data.message) || response.statusText;
+      return Promise.reject(error);
+    }
+    return data;
+  });
+}
+
+export default ApiHelper;

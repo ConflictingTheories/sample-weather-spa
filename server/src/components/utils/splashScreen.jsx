@@ -15,22 +15,25 @@ import React from "react";
 
 // ASSETS & APP STYLES
 import logo from "../../assets/logo.svg";
-import "../../styles/App.less";
+import "../../styles/less/App.less";
 
 // Splash Screen
-function SplashScreen() {
+function SplashScreen(loadingMessage) {
   return (
     <div className="App">
-      <header className="App-splash">
+      <header className="App-splash swirl">
         <img src={logo} className="App-logo" alt="logo" />
-        <p>Please, wait a moment while we load the application.</p>
+        <p>{loadingMessage}</p>
       </header>
     </div>
   );
 }
 
 // Splash Screen
-export default function withSplashScreen(WrappedComponent) {
+export default function withSplashScreen(
+  WrappedComponent,
+  loadingMessage = "Please, wait a moment while we load the application."
+) {
   return class extends React.Component {
     constructor(props) {
       super(props);
@@ -55,7 +58,7 @@ export default function withSplashScreen(WrappedComponent) {
     }
 
     render() {
-      if (this.state.loading) return SplashScreen();
+      if (this.state.loading) return SplashScreen(loadingMessage);
       return <WrappedComponent {...this.props} />;
     }
   };

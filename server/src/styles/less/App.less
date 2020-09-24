@@ -1,0 +1,101 @@
+@import "./colors.less";
+@import "./animations.less";
+
+// APP DESIGN
+
+.App {
+  text-align: center;
+}
+
+.App-logo {
+  height: 40vmin;
+  pointer-events: none;
+}
+
+.App-splash {
+  overflow: hidden;
+  background: @primaryGrad;
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  color: @textColor;
+}
+
+.App-header {
+  background: @primaryGrad;
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  font-size: calc(10px + 2vmin);
+  color: @textColor;
+}
+
+.App-body {
+  background: @primaryGrad;
+  min-height: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  font-size: calc(10px + 2vmin);
+  color: @textColor;
+}
+
+.App-link {
+  color: @linkColor;
+}
+
+.nav-option {
+  font-size: 20pt;
+  font-weight: 400;
+  color: currentColor;
+}
+
+.secondaryGrad {
+  background-image: @secondaryGrad;
+  transition: 2s opacity linear;
+}
+
+.clearDay {
+  background-image: @clearDay;
+  transition: 1.5s opacity ease-in-out;
+}
+
+.clearNight {
+  background-image: @clearNight;
+  transition: 1.5s opacity ease-in-out;
+}
+
+.glitter {
+  background-image: @glitter;
+  transition: 1.5s opacity ease-in-out;
+}
+
+// SCROLLBAR
+::-webkit-scrollbar {
+  width: 4px;
+}
+::-webkit-scrollbar-track {
+  background: @dark;
+}
+::-webkit-scrollbar-thumb {
+  background: @secondaryColor;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: @slateGray;
+}
+
+// Adjustments
+.rs-row {
+  margin-top: 6px;
+}
+
+.rs-nav {
+  text-align: center;
+}
+
+.rs-nav-waterline {
+  display: none;
+}
