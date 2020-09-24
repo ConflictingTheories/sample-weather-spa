@@ -66,6 +66,7 @@ class WeatherForecast extends Component {
     this.renderPanelBody = this.renderPanelBody.bind(this);
     this.renderSearchBar = this.renderSearchBar.bind(this);
     this.renderPanelHeader = this.renderPanelHeader.bind(this);
+    this.renderFog = this.renderFog.bind(this);
 
     // State
     this.state = {
@@ -174,7 +175,8 @@ class WeatherForecast extends Component {
   }
 
   // Render Fog
-  renderFog(current) {
+  renderFog() {
+    const { current } = this.state;
     if (current && current.weather && current.weather[0]) {
       switch (current.weather[0].icon) {
         // Clear
@@ -254,34 +256,42 @@ class WeatherForecast extends Component {
   }
 
   // Generate Details for Display
-  renderForecast(forecast, current) {
-    let today = new Date(current.dt * 1000);
-    let output = forecast.list
-      .map((t) => {
-        let temp = kelvinToCelsius(t.main.temp);
-        let min = kelvinToCelsius(t.main.temp_min);
-        let max = kelvinToCelsius(t.main.temp_max);
-        let icon = t.weather[0].icon;
-        let date = new Date(t.dt * 1000);
-        let isNoon = t.dt_txt.match(/12:00:00/i);
-        let index = date.getUTCDate() - today.getUTCDate();
-        if (!!isNoon && index > 0) {
-          console.log(isNoon, index);
-          return { min, max, temp, date, icon };
-        } else return null;
-      })
-      .filter((x) => x);
-    console.log(output);
+  renderForecast() {
+    const { current, forecast, loading, location } = this.state;
+    let today = new Date();
+    let output = [];
+    // If Loaded
+    if (!loading) {
+      output = forecast.list
+        .map((t) => {
+          let temp = kelvinToCelsius(t.main.temp);
+          let min = kelvinToCelsius(t.main.temp_min);
+          let max = kelvinToCelsius(t.main.temp_max);
+          let icon = t.weather[0].icon;
+          let date = new Date(t.dt * 1000);
+          let isNoon = t.dt_txt.match(/12:00:00/i);
+          let index = date.getUTCDate() - today.getUTCDate();
+          if (!!isNoon && index > 0) {
+            console.log(isNoon, index);
+            return { min, max, temp, date, icon };
+          } else return null;
+        })
+        .filter((x) => x);
+    }
     return (
       <div className={"details"}>
         {/* Today  */}
         <Row>
           <Col md={24} lg={24} sm={24}>
-            <Panel bordered intent={Intent.SUCCESS}>
-              <h5>Today</h5>
-              {this.state.loading ? (
-                <Placeholder.Paragraph />
-              ) : (
+            {/* // Loading */}
+            {loading ? (
+              <Panel bordered className={"loading"}>
+                <Placeholder.Paragraph rowHeight={6} graph="image" />
+              </Panel>
+            ) : (
+              // Loaded
+              <Panel style={{ background: "white" }} bordered>
+                <h5>Today</h5>
                 <div>
                   {this.renderIcon(current.weather[0].icon)}
                   <h3
@@ -292,10 +302,8 @@ class WeatherForecast extends Component {
                       display: "inline",
                     }}
                   >
-                    <div style={{ float: "right" }}>
-                      {this.state.location.city +
-                        ", " +
-                        this.state.location.country}
+                    <div style={{ fontSize: "0.75em", float: "right" }}>
+                      {location.city + ", " + location.country}
                       <br />
                       {(" " + current.weather[0].description)
                         .toLowerCase()
@@ -306,35 +314,54 @@ class WeatherForecast extends Component {
                     {kelvinToCelsius(current.main.temp).toFixed(1) + "°C"}
                   </h3>
                 </div>
-              )}
-            </Panel>
+              </Panel>
+            )}
           </Col>
         </Row>
         {/* Four Days Out */}
         <Row>
-          {output.slice(0, 4).map((day, index) => {
-            let dayOfWeek = (today.getDay() + index + 1) % 7;
-            return (
-              <Col md={6} lg={6} sm={6}>
-                <Panel style={{ textAlign: "center" }} bordered>
-                  <h5>{days[dayOfWeek]}</h5>
-                  <div>
-                    {this.renderIcon(day.icon)}
-                    <h3
-                      style={{
-                        position: "relative",
-                        height: "100%",
-                        width: "100%",
-                        display: "inline",
-                      }}
+          {/* // Loading */}
+          {loading
+            ? [1, 2, 3, 4].map((x) => {
+                return (
+                  <Col md={6} lg={6} sm={6}>
+                    <Panel
+                      style={{ textAlign: "center" }}
+                      bordered
+                      className={"loading"}
                     >
-                      {day.temp.toFixed(1) + "°C"}
-                    </h3>
-                  </div>
-                </Panel>
-              </Col>
-            );
-          })}
+                      <Placeholder.Paragraph rowHeight={6} graph="image" />
+                    </Panel>
+                  </Col>
+                );
+              })
+            : // Loaded
+              output.slice(0, 4).map((day, index) => {
+                let dayOfWeek = (today.getDay() + index + 1) % 7;
+                return (
+                  <Col md={6} lg={6} sm={6}>
+                    <Panel
+                      style={{ textAlign: "center", background: "white" }}
+                      bordered
+                    >
+                      <h5>{days[dayOfWeek]}</h5>
+                      <div>
+                        {this.renderIcon(day.icon)}
+                        <h3
+                          style={{
+                            position: "relative",
+                            height: "100%",
+                            width: "100%",
+                            display: "inline",
+                          }}
+                        >
+                          {day.temp.toFixed(1) + "°C"}
+                        </h3>
+                      </div>
+                    </Panel>
+                  </Col>
+                );
+              })}
         </Row>
       </div>
     );
@@ -373,6 +400,8 @@ class WeatherForecast extends Component {
               </select>
               <Button onClick={() => this.fetchByCity()}>Lookup</Button>
             </ControlGroup>
+            <br />
+            <br />
           </React.Fragment>
         }
       />
@@ -383,7 +412,7 @@ class WeatherForecast extends Component {
   renderPanelHeader() {
     return (
       <Nav
-        subtle
+        appearance={"subtle"}
         onSelect={async (eventKey, event) => {
           console.log(event, eventKey);
           if (eventKey === "search") {
@@ -420,12 +449,11 @@ class WeatherForecast extends Component {
 
   // Panel Body
   renderPanelBody() {
-    const { forecast, current } = this.state;
     return (
       <Container>
         <Content
           style={{
-            padding: "1em",
+            padding: "0.2em 0.3em",
             minWidth: "55vw",
             maxHeight: "65vh",
             width: "55vw",
@@ -433,15 +461,9 @@ class WeatherForecast extends Component {
           }}
         >
           {/* SEARCH */}
-          {this.state.currentTab === "search"
-            ? this.renderSearchBar(current)
-            : null}
+          {this.state.currentTab === "search" ? this.renderSearchBar() : null}
           {/* BODY */}
-          {this.state.location.city !== "" && forecast ? (
-            <Container>{this.renderForecast(forecast, current)}</Container>
-          ) : (
-            withSplashScreen(<div></div>, "Loading...")
-          )}
+          <Container>{this.renderForecast()}</Container>
         </Content>
       </Container>
     );
@@ -449,13 +471,12 @@ class WeatherForecast extends Component {
 
   // Component
   render() {
-    const { current } = this.state;
     return (
       <Container>
         <Content>
           <div
             style={{ position: "fixed", height: "100%", width: "100%" }}
-            className={this.weatherClass(current)}
+            className={this.weatherClass()}
           ></div>
           <FlexboxGrid justify="center">
             <FlexboxGrid.Item colspan={24}>
@@ -464,16 +485,15 @@ class WeatherForecast extends Component {
                 style={{ background: "transparent" }}
               >
                 {/* Fog Effect - for certain weather patterns */}
-                {this.renderFog(current)}
+                {this.renderFog()}
                 <Panel>
                   {/* City Nav */}
                   {this.renderPanelHeader()}
-                  <Panel
-                    shaded
-                    bordered
-                    bodyFill
-                    style={{ background: "snow", opacity: 0.9 }}
-                  >
+                  <br />
+                  <br />
+                  <br />
+                  <br />
+                  <Panel shaded bordered bodyFill className={"glitter swirl"}>
                     {/* Forecast */}
                     {this.renderPanelBody()}
                   </Panel>

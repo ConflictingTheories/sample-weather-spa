@@ -48,9 +48,9 @@
 }
 
 .nav-option {
-  font-size: 16pt;
-  font-weight: bold;
-  color: @linkColor;
+  font-size: 20pt;
+  font-weight: 400;
+  color: currentColor;
 }
 
 .secondaryGrad {
@@ -68,6 +68,11 @@
   transition: 1.5s opacity ease-in-out;
 }
 
+.glitter {
+  background-image: @glitter;
+  transition: 1.5s opacity ease-in-out;
+}
+
 // SCROLLBAR
 ::-webkit-scrollbar {
   width: 4px;
@@ -80,4 +85,17 @@
 }
 ::-webkit-scrollbar-thumb:hover {
   background: @slateGray;
+}
+
+// Adjustments
+.rs-row {
+  margin-top: 6px;
+}
+
+.rs-nav {
+  text-align: center;
+}
+
+.rs-nav-waterline {
+  display: none;
 }
