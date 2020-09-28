@@ -49,6 +49,11 @@ import {
 import colors from "../styles/colors";
 import withSplashScreen from "./utils/splashScreen";
 
+// Day JS
+import dayjs from "dayjs";
+import utc  from 'dayjs/plugin/utc';
+dayjs.extend(utc);
+
 const days = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
 
 const { Paragraph } = Placeholder;
@@ -258,7 +263,7 @@ class WeatherForecast extends Component {
   // Generate Details for Display
   renderForecast() {
     const { current, forecast, loading, location } = this.state;
-    let today = new Date();
+    let today = dayjs();
     let output = [];
     // If Loaded
     if (!loading) {
@@ -268,9 +273,9 @@ class WeatherForecast extends Component {
           let min = kelvinToCelsius(t.main.temp_min);
           let max = kelvinToCelsius(t.main.temp_max);
           let icon = t.weather[0].icon;
-          let date = new Date(t.dt * 1000);
+          let date = dayjs.utc(t.dt*1000);
           let isNoon = t.dt_txt.match(/12:00:00/i);
-          let index = date.getUTCDate() - today.getUTCDate();
+          let index = date.diff(today, "day");
           if (!!isNoon && index > 0) {
             console.log(isNoon, index);
             return { min, max, temp, date, icon };
@@ -337,7 +342,7 @@ class WeatherForecast extends Component {
               })
             : // Loaded
               output.slice(0, 4).map((day, index) => {
-                let dayOfWeek = (today.getDay() + index + 1) % 7;
+                let dayOfWeek = (today.day() + index + 1) % 7;
                 return (
                   <Col md={6} lg={6} sm={6}>
                     <Panel

@@ -40,6 +40,7 @@ module.exports = (() => {
       };
       res.json(status);
     } catch (e) {
+      console.log(e);
       Error.setError("Error", 500, e);
       Error.sendError(res);
     }
